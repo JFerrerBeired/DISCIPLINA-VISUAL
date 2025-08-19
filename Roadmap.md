@@ -9,7 +9,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 1: Fundación del Proyecto y Dependencias**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Crear el proyecto base de Flutter, configurar el entorno y añadir todas las dependencias necesarias para evitar tener que hacerlo a mitad del desarrollo.
 *   **Tareas Técnicas:**
     1.  Crear el nuevo proyecto Flutter: `flutter create disciplina_visual`.
