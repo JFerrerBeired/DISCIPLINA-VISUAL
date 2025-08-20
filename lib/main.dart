@@ -8,7 +8,7 @@ import 'package:disciplina_visual/utils/date_provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => DateProvider(initialOffsetDays: 0),
+      create: (context) => DateProvider(initialOffsetDays: 60),
       child: const MyApp(),
     ),
   );

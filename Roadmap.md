@@ -101,7 +101,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 7: Implementación de la Pantalla de Detalles**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Construir y poblar la Pantalla de Detalles con todos sus componentes visuales y datos reales.
 *   **Tareas Técnicas:**
     1.  Pasar el `Habit` seleccionado a `HabitDetailScreen` durante la navegación.
@@ -115,7 +115,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 8: Interacciones Avanzadas y Edición**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Añadir las funcionalidades de edición más complejas que diseñamos para mejorar la UX.
 *   **Tareas Técnicas:**
     1.  En `HabitCard`, implementar el `onLongPress` en los "Puntos de Actividad Reciente" para permitir la edición rápida de días pasados desde el Dashboard.

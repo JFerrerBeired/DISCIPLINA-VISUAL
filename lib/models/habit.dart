@@ -15,6 +15,21 @@ class Habit {
     required this.creationDate,
   });
 
+  /// Crea una copia de este objeto [Habit] con los valores proporcionados.
+  Habit copyWith({
+    int? id,
+    String? name,
+    int? color,
+    DateTime? creationDate,
+  }) {
+    return Habit(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      color: color ?? this.color,
+      creationDate: creationDate ?? this.creationDate,
+    );
+  }
+
   /// Convierte un objeto [Habit] en un [Map].
   ///
   /// Útil para insertar/actualizar en la base de datos.

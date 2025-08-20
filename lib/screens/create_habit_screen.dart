@@ -3,7 +3,9 @@ import 'package:disciplina_visual/models/habit.dart';
 import 'package:disciplina_visual/services/database_helper.dart';
 
 class CreateHabitScreen extends StatefulWidget {
-  const CreateHabitScreen({super.key});
+  final Habit? habit; // Make habit optional
+
+  const CreateHabitScreen({super.key, this.habit}); // Update constructor
 
   @override
   State<CreateHabitScreen> createState() => _CreateHabitScreenState();
@@ -14,39 +16,51 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   int _selectedColor = Colors.blue.value; // Color por defecto
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    if (widget.habit != null) {
+      _nameController.text = widget.habit!.name;
+      _selectedColor = widget.habit!.color;
+    }
   }
 
-  // Método para guardar el hábito.
+  // Método para guardar o actualizar el hábito.
   void _saveHabit() async {
     final String name = _nameController.text.trim();
     if (name.isEmpty) {
-      // Mostrar un mensaje de error o validación si el nombre está vacío.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('El nombre del hábito no puede estar vacío.')),
       );
       return;
     }
 
-    final newHabit = Habit(
-      name: name,
-      color: _selectedColor,
-      creationDate: DateTime.now(),
-    );
+    Habit habitToSave;
+    if (widget.habit != null) {
+      // Editing existing habit
+      habitToSave = widget.habit!.copyWith(
+        name: name,
+        color: _selectedColor,
+      );
+      await DatabaseHelper.instance.updateHabit(habitToSave);
+    } else {
+      // Creating new habit
+      habitToSave = Habit(
+        name: name,
+        color: _selectedColor,
+        creationDate: DateTime.now(),
+      );
+      await DatabaseHelper.instance.createHabit(habitToSave);
+    }
 
-    await DatabaseHelper.instance.createHabit(newHabit);
-
-    // Volver a la pantalla anterior (Dashboard).
-    Navigator.pop(context);
+    // Return the habit to the previous screen (HabitDetailScreen or Dashboard)
+    Navigator.pop(context, habitToSave);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Crear Nuevo Hábito'),
+        title: Text(widget.habit == null ? 'Crear Nuevo Hábito' : 'Editar Hábito'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

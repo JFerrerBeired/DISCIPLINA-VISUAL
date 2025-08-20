@@ -117,6 +117,46 @@ class _HabitCardState extends State<HabitCard> {
     await _loadCompletionData();
   }
 
+  /// Maneja la pulsación larga en un punto de actividad reciente para editar un día pasado.
+  Future<void> _handleRecentCompletionLongPress(Completion completion) async {
+    final isCompleted = completion.id != null;
+    final action = isCompleted ? "desmarcar" : "marcar";
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Editar ${widget.habit.name}"),
+          content: Text("¿Deseas $action este hábito para el día ${completion.date.day}/${completion.date.month}?",),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(action == "desmarcar" ? "Desmarcar" : "Marcar"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _toggleCompletionForDate(completion.date, isCompleted);
+    }
+  }
+
+  /// Alterna el estado de completado para una fecha específica.
+  Future<void> _toggleCompletionForDate(DateTime date, bool isCurrentlyCompleted) async {
+    if (isCurrentlyCompleted) {
+      await DatabaseHelper.instance.removeCompletion(widget.habit.id!, date);
+    } else {
+      await DatabaseHelper.instance.addCompletion(widget.habit.id!, date);
+    }
+    await _loadCompletionData(); // Recargar datos para actualizar la UI
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -151,14 +191,17 @@ class _HabitCardState extends State<HabitCard> {
           mainAxisSize: MainAxisSize.min,
           children: _recentCompletions.map((completion) {
             final isCompleted = completion.id != null; // Si tiene ID, es un completado real
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0), // Aumentado el padding
-              child: Container(
-                width: 12, // Aumentado el tamaño
-                height: 12, // Aumentado el tamaño
-                decoration: BoxDecoration(
-                  color: isCompleted ? Color(widget.habit.color) : Colors.grey.shade300,
-                  shape: BoxShape.circle,
+            return GestureDetector(
+              onLongPress: () => _handleRecentCompletionLongPress(completion),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0), // Aumentado el padding
+                child: Container(
+                  width: 12, // Aumentado el tamaño
+                  height: 12, // Aumentado el tamaño
+                  decoration: BoxDecoration(
+                    color: isCompleted ? Color(widget.habit.color) : Colors.grey.shade300,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             );

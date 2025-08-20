@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart'; // Para formatear fechas
+import 'package:disciplina_visual/screens/create_habit_screen.dart'; // Add this line
 import '../models/habit.dart';
 import '../models/completion.dart';
 import '../services/database_helper.dart';
@@ -20,10 +21,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   late Future<List<Completion>> _completionsFuture;
   late DateProvider _dateProvider;
   late ScrollController _scrollController;
+  bool _isEditingHeatmap = false;
+  late Habit _displayHabit; // Add this line
 
   @override
   void initState() {
     super.initState();
+    _displayHabit = widget.habit; // Initialize _displayHabit
     _dateProvider = Provider.of<DateProvider>(context, listen: false);
     _dateProvider.addListener(_loadCompletions);
     _loadCompletions();
@@ -47,6 +51,40 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     setState(() {
       _completionsFuture = DatabaseHelper.instance.getCompletionsForHabit(widget.habit.id!); 
     });
+  }
+
+  /// Maneja el tap en una celda del heatmap en modo edición.
+  Future<void> _handleHeatmapCellTap(DateTime date, bool isCurrentlyCompleted) async {
+    final action = isCurrentlyCompleted ? "desmarcar" : "marcar";
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Editar ${widget.habit.name}"),
+          content: Text("¿Deseas $action este hábito para el día ${date.day}/${date.month}?",),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(action == "desmarcar" ? "Desmarcar" : "Marcar"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      if (isCurrentlyCompleted) {
+        await DatabaseHelper.instance.removeCompletion(widget.habit.id!, date);
+      } else {
+        await DatabaseHelper.instance.addCompletion(widget.habit.id!, date);
+      }
+      _loadCompletions(); // Recargar datos para actualizar la UI
+    }
   }
 
   /// Calcula y devuelve una lista de todas las rachas pasadas.
@@ -77,6 +115,53 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       pastStreaks.add(currentStreak);
     }
     return pastStreaks;
+  }
+
+  /// Navega a la pantalla de edición de hábito.
+  Future<void> _editHabit() async {
+    final updatedHabit = await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CreateHabitScreen(habit: _displayHabit), // Pass _displayHabit
+      ),
+    );
+
+    if (updatedHabit != null && updatedHabit is Habit) {
+      setState(() {
+        _displayHabit = updatedHabit; // Update _displayHabit
+      });
+      _loadCompletions(); // Reload completions as well, in case habit ID changed (unlikely but good practice)
+    }
+  }
+
+  /// Muestra un diálogo de confirmación y elimina el hábito si se confirma.
+  Future<void> _deleteHabit() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Eliminar Hábito"),
+          content: Text("¿Estás seguro de que deseas eliminar el hábito '${widget.habit.name}'? Esta acción es irreversible y eliminará todos sus datos de completado."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await DatabaseHelper.instance.deleteHabit(widget.habit.id!);
+      // Volver al Dashboard después de eliminar
+      if (mounted) {
+        Navigator.of(context).pop(); // Pop HabitDetailScreen
+      }
+    }
   }
 
   /// Genera los datos para el gráfico de análisis.
@@ -123,9 +208,30 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.habit.name),
-        backgroundColor: Color(widget.habit.color),
+            appBar: AppBar(
+        title: Text(_displayHabit.name),
+        backgroundColor: Color(_displayHabit.color),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'edit') {
+                _editHabit();
+              } else if (value == 'delete') {
+                _deleteHabit();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'edit',
+                child: Text('Editar Hábito'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'delete',
+                child: Text('Eliminar Hábito'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: FutureBuilder<List<Completion>>(
         future: _completionsFuture,
@@ -142,8 +248,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${widget.habit.name}',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(widget.habit.color)),
+                    '${_displayHabit.name}',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(_displayHabit.color)),
                   ),
                   const SizedBox(height: 20),
                   const Text('No hay datos de completado para este hábito.'),
@@ -169,7 +275,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
           final List<List<DateTime?>> weeksData = [];
           
           // Generar semanas desde la fecha de creación del hábito hasta la fecha simulada actual
-          DateTime startDate = widget.habit.creationDate; // Fecha de inicio del heatmap
+          DateTime startDate = _displayHabit.creationDate; // Fecha de inicio del heatmap
           DateTime endDate = _dateProvider.simulatedToday; // Fecha fin del heatmap
 
           // Asegurarse de que startDate sea el inicio de la semana
@@ -197,8 +303,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               children: [
                 Center(
                   child: Text(
-                    '${widget.habit.name}',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(widget.habit.color)),
+                    '${_displayHabit.name}',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(_displayHabit.color)),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -210,7 +316,23 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                const Text('Actividad Reciente', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Actividad Reciente', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: Icon(_isEditingHeatmap ? Icons.check : Icons.edit),
+                      onPressed: () {
+                        setState(() {
+                          _isEditingHeatmap = !_isEditingHeatmap;
+                        });
+                        if (!_isEditingHeatmap) {
+                          _loadCompletions(); // Reload data to ensure UI is up-to-date
+                        }
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 // Heatmap transpuesto
                 Container(
@@ -283,20 +405,25 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                                            c.date.month == day.month &&
                                            c.date.day == day.day,
                                   );
-                                  return Container(
-                                    width: 35,
-                                    height: 35,
-                                    margin: const EdgeInsets.all(2.0),
-                                    decoration: BoxDecoration(
-                                      color: day == null ? Colors.transparent : (isCompleted ? Color(widget.habit.color) : Colors.grey.shade200),
-                                      borderRadius: BorderRadius.circular(4.0),
-                                    ),
-                                    child: day == null ? null : Center(
-                                      child: Text(
-                                        '${day.day}',
-                                        style: TextStyle(
-                                          color: isCompleted ? Colors.white : Colors.black,
-                                          fontSize: 12,
+                                  return GestureDetector(
+                                    onTap: day == null || !_isEditingHeatmap
+                                        ? null
+                                        : () => _handleHeatmapCellTap(day, isCompleted),
+                                    child: Container(
+                                      width: 35,
+                                      height: 35,
+                                      margin: const EdgeInsets.all(2.0),
+                                      decoration: BoxDecoration(
+                                        color: day == null ? Colors.transparent : (isCompleted ? Color(_displayHabit.color) : Colors.grey.shade200),
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                      child: day == null ? null : Center(
+                                        child: Text(
+                                          '${day.day}',
+                                          style: TextStyle(
+                                            color: isCompleted ? Colors.white : Colors.black,
+                                            fontSize: 12,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -341,7 +468,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                         LineChartBarData(
                           spots: chartData,
                           isCurved: true,
-                          color: Color(widget.habit.color),
+                          color: Color(_displayHabit.color),
                           barWidth: 3,
                           isStrokeCapRound: true,
                           dotData: const FlDotData(show: true),

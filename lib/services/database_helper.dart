@@ -16,7 +16,7 @@ class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   // Única instancia de la base de datos.
-  static Database? _database;
+  Database? _database; // Removed static
 
   /// Getter para la base de datos.
   ///
@@ -27,10 +27,15 @@ class DatabaseHelper {
     return _database!;
   }
 
+  // Setter para la base de datos (solo para uso en tests).
+  set setTestDatabase(Database newDatabase) { // Changed Future<Database> to Database
+    _database = newDatabase;
+  }
+
   /// Inicializa la base de datos.
   ///
   /// Obtiene la ruta y abre la conexión. Si la base de datos no existe,
-  /// la crea llamando a _onCreate.
+  /// la crea llamando a _onCreateInternal.
   Future<Database> _initDB() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'disciplina_visual.db');
@@ -38,14 +43,15 @@ class DatabaseHelper {
     return await openDatabase(
       path,
       version: 1,
-      onCreate: _onCreate,
+      onCreate: _onCreateInternal, // Use internal onCreate
     );
   }
 
   /// Método llamado cuando la base de datos es creada por primera vez.
   ///
   /// Aquí se define el esquema inicial de la base de datos (creación de tablas).
-  Future<void> _onCreate(Database db, int version) async {
+  // Made public for testing purposes
+  Future<void> _onCreateInternal(Database db, int version) async {
     await db.execute('''
       CREATE TABLE habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,15 +71,20 @@ class DatabaseHelper {
     ''');
   }
 
+  // Public method to create tables for testing
+  Future<void> createTables(Database db) async {
+    await _onCreateInternal(db, 1);
+  }
+
   /// Inserta un nuevo hábito en la base de datos.
   Future<int> createHabit(Habit habit) async {
-    final db = await instance.database;
+    final db = await database;
     return await db.insert('habits', habit.toMap());
   }
 
   /// Recupera todos los hábitos de la base de datos.
   Future<List<Habit>> getAllHabits() async {
-    final db = await instance.database;
+    final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('habits');
 
     // Convierte la lista de Maps en una lista de Habits.
@@ -84,7 +95,7 @@ class DatabaseHelper {
 
   /// Añade un registro de completado para un hábito en una fecha específica.
   Future<void> addCompletion(int habitId, DateTime date) async {
-    final db = await instance.database;
+    final db = await database;
     await db.insert(
       'completions',
       Completion(habitId: habitId, date: date).toMap(),
@@ -94,7 +105,7 @@ class DatabaseHelper {
 
   /// Elimina un registro de completado para un hábito en una fecha específica.
   Future<void> removeCompletion(int habitId, DateTime date) async {
-    final db = await instance.database;
+    final db = await database;
     // Normalizamos la fecha para que coincida con cómo la guardamos (solo YYYY-MM-DD)
     final String formattedDate = date.toIso8601String().substring(0, 10);
     await db.delete(
@@ -106,7 +117,7 @@ class DatabaseHelper {
 
   /// Recupera todos los registros de completado para un hábito dado.
   Future<List<Completion>> getCompletionsForHabit(int habitId) async {
-    final db = await instance.database;
+    final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'completions',
       where: 'habitId = ?',
@@ -119,17 +130,45 @@ class DatabaseHelper {
     });
   }
 
+  /// Actualiza un hábito existente en la base de datos.
+  Future<int> updateHabit(Habit habit) async {
+    final db = await database;
+    return await db.update(
+      'habits',
+      habit.toMap(),
+      where: 'id = ?',
+      whereArgs: [habit.id],
+    );
+  }
+
+  /// Elimina un hábito de la base de datos y sus completados asociados.
+  Future<int> deleteHabit(int id) async {
+    final db = await database;
+    // Eliminar los completados asociados primero (debido a ON DELETE CASCADE, esto podría ser opcional si la FK está bien configurada)
+    await db.delete(
+      'completions',
+      where: 'habitId = ?',
+      whereArgs: [id],
+    );
+    // Eliminar el hábito
+    return await db.delete(
+      'habits',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   /// Elimina todos los hábitos y sus completados asociados.
   /// Útil para pruebas o reseteo de datos.
   Future<void> deleteAllHabits() async {
-    final db = await instance.database;
+    final db = await database;
     await db.delete('habits');
     await db.delete('completions'); // También borramos los completados asociados
   }
 
   /// Elimina registros de completado cuya fecha sea posterior a la fecha de corte.
   Future<void> deleteFutureCompletions(DateTime cutoffDate) async {
-    final db = await instance.database;
+    final db = await database;
     final String formattedCutoffDate = cutoffDate.toIso8601String().substring(0, 10);
     await db.delete(
       'completions',
