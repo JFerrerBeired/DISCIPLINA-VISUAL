@@ -4,6 +4,8 @@ import '../models/habit.dart';
 import '../services/database_helper.dart';
 import '../widgets/habit_card.dart';
 import '../utils/date_provider.dart';
+import 'package:disciplina_visual/screens/habit_detail_screen.dart'; // Importar la pantalla de detalles
+import 'package:intl/intl.dart'; // Importar para DateFormat
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -44,10 +46,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Consumer<DateProvider>(
           builder: (context, dateProvider, child) {
             String title = 'Dashboard de Hábitos';
+            String dateString = DateFormat('dd/MM/yyyy').format(dateProvider.simulatedToday);
             if (dateProvider.dayOffset > 0) {
-              title += ' (+${dateProvider.dayOffset} días)';
+              title = 'Dashboard de Hábitos (' + dateString + ' +${dateProvider.dayOffset} días)';
             } else if (dateProvider.dayOffset < 0) {
-              title += ' (${dateProvider.dayOffset} días)';
+              title = 'Dashboard de Hábitos (' + dateString + ' ${dateProvider.dayOffset} días)';
+            } else {
+              title = 'Dashboard de Hábitos (' + dateString + ')';
             }
             return Text(title);
           },
@@ -113,7 +118,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   return ListView.builder(
                     itemCount: habits.length,
                     itemBuilder: (context, index) {
-                      return HabitCard(habit: habits[index]);
+                      final habit = habits[index];
+                      return HabitCard(habit: habit, onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HabitDetailScreen(habit: habit),
+                          ),
+                        ).then((_) => _loadHabits()); // Recargar hábitos al volver
+                      });
                     },
                   );
                 },

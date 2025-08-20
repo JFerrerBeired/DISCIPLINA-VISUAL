@@ -8,7 +8,7 @@ import 'package:disciplina_visual/utils/date_provider.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (context) => DateProvider(),
+      create: (context) => DateProvider(initialOffsetDays: 0),
       child: const MyApp(),
     ),
   );
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const DashboardScreen(),
         '/create': (context) => const CreateHabitScreen(),
-        '/details': (context) => const HabitDetailScreen(),
+        // La ruta '/details' ya no es necesaria aquí, se navega directamente.
       },
     );
   }

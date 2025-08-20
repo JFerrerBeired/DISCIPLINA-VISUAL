@@ -12,8 +12,9 @@ import '../utils/date_provider.dart';
 /// la interacción para marcar/desmarcar el hábito del día.
 class HabitCard extends StatefulWidget {
   final Habit habit;
+  final VoidCallback? onTap; // Añadido el parámetro onTap
 
-  const HabitCard({super.key, required this.habit});
+  const HabitCard({super.key, required this.habit, this.onTap});
 
   @override
   State<HabitCard> createState() => _HabitCardState();
@@ -163,11 +164,7 @@ class _HabitCardState extends State<HabitCard> {
             );
           }).toList(),
         ),
-        onTap: () {
-          // Navega a la pantalla de detalles pasando el hábito.
-          // La lógica de pasar datos se implementará más adelante.
-          Navigator.pushNamed(context, '/details');
-        },
+        onTap: widget.onTap, // Usamos el onTap pasado por el padre
       ),
     );
   }

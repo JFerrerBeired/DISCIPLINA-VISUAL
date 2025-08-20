@@ -6,8 +6,10 @@ import '../services/database_helper.dart';
 /// Permite avanzar o resetear la fecha para propósitos de prueba
 /// y asegura la consistencia de los datos en la base de datos.
 class DateProvider with ChangeNotifier {
-  DateTime _simulatedToday = DateTime.now();
+  DateTime _simulatedToday;
   int _dayOffset = 0;
+
+  DateProvider({int initialOffsetDays = 0}) : _simulatedToday = DateTime.now().add(Duration(days: initialOffsetDays));
 
   DateTime get simulatedToday => _simulatedToday;
   int get dayOffset => _dayOffset;
