@@ -26,7 +26,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 2: Modelo de Datos y Capa de Persistencia**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Definir la estructura de nuestros datos y crear el servicio de base de datos que se encargará de todas las operaciones CRUD (Crear, Leer, Actualizar, Borrar). Esta etapa no tiene UI.
 *   **Tareas Técnicas:**
     1.  Crear los archivos de modelo: `models/habit.dart` y `models/completion.dart` con todas sus propiedades (`id`, `name`, `color`, etc.) y métodos `toJson/fromJson`.
@@ -42,7 +42,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 3: Esqueleto de la UI y Navegación Básica**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Crear los archivos de las pantallas principales y configurar la navegación entre ellas. Las pantallas estarán vacías o con contenido estático ("placeholders").
 *   **Tareas Técnicas:**
     1.  Crear los archivos de las vistas: `screens/dashboard_screen.dart`, `screens/habit_detail_screen.dart`, `screens/create_habit_screen.dart`.
@@ -56,7 +56,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 4: Visualización Dinámica de Hábitos en el Dashboard**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Conectar la base de datos con el Dashboard para que muestre los hábitos reales en lugar de los datos falsos.
 *   **Tareas Técnicas:**
     1.  En `DashboardScreen`, convertir el Widget a un `StatefulWidget`.
@@ -69,7 +69,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 5: Ciclo Completo de Creación de Hábitos**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Implementar la funcionalidad completa para que un usuario pueda crear un hábito a través de la interfaz y verlo reflejado en el Dashboard.
 *   **Tareas Técnicas:**
     1.  En `CreateHabitScreen`, construir el formulario con un `TextFormField` para el nombre y un widget simple para seleccionar el color.
