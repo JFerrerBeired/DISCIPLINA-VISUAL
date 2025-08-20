@@ -15,8 +15,9 @@ sudo apt-get update -y
 # Install Flutter dependencies plus the required GTK libraries for Linux desktop target
 sudo apt-get install -y wget unzip default-jdk curl git libgtk-3-dev mesa-utils
 
+
 # 2. Install Flutter
-FLUTTER_VERSION="3.22.2" # Using a version known to be stable and compatible
+FLUTTER_VERSION="3.35.0" # Using a version known to be stable and compatible
 FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
 FLUTTER_PATH="/opt/flutter"
 
@@ -45,18 +46,26 @@ flutter pub get
 log "Running flutter doctor..."
 flutter doctor -v
 
-# 7. Run the Application on Linux Desktop
-log "Running the app on Linux desktop..."
+# 7. Run the Application on Web
+log "Running the app on web..."
 # The app will be launched in the background. We can check logs for success.
-flutter run -d linux &> flutter_run.log &
-# Give the app a moment to launch
-sleep 20
+flutter run -d web-server &> flutter_run.log &
 
-# Check if the process is still running
-if pgrep -f "disciplina_visual" > /dev/null; then
-    log "Application process found. It appears to have launched successfully."
-else
-    log "Application process not found. Checking logs for errors."
+log "Waiting for web server to be ready..."
+ATTEMPTS=0
+MAX_ATTEMPTS=30
+while [ $ATTEMPTS -lt $MAX_ATTEMPTS ]; do
+    PORT_LINE=$(grep 'is being served at' flutter_run.log || true)
+    if [ ! -z "$PORT_LINE" ]; then
+        log "Web server is ready."
+        break
+    fi
+    sleep 2
+    ATTEMPTS=$((ATTEMPTS + 1))
+done
+
+if [ -z "$PORT_LINE" ]; then
+    log "Web server failed to start in time. Checking logs for errors."
     cat flutter_run.log
     exit 1
 fi
