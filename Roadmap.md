@@ -85,7 +85,7 @@ Actualiza el estado de cada checkpoint a medida que avanzas. No pases al siguien
 
 #### **Checkpoint 6: Interacción Diaria - Marcar Hábitos**
 
-*   `[ ] Status: Pendiente`
+*   `[x] Status: Completado`
 *   **Objetivo:** Implementar la funcionalidad principal de la app: marcar y desmarcar un hábito como completado para el día de hoy.
 *   **Tareas Técnicas:**
     1.  En `database_helper.dart`, crear los métodos:

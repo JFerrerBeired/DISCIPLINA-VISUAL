@@ -126,4 +126,15 @@ class DatabaseHelper {
     await db.delete('habits');
     await db.delete('completions'); // También borramos los completados asociados
   }
+
+  /// Elimina registros de completado cuya fecha sea posterior a la fecha de corte.
+  Future<void> deleteFutureCompletions(DateTime cutoffDate) async {
+    final db = await instance.database;
+    final String formattedCutoffDate = cutoffDate.toIso8601String().substring(0, 10);
+    await db.delete(
+      'completions',
+      where: 'date > ?',
+      whereArgs: [formattedCutoffDate],
+    );
+  }
 }

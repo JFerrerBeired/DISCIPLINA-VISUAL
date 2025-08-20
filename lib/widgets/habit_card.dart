@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/habit.dart';
 import '../services/database_helper.dart';
 import '../models/completion.dart';
+import '../utils/date_provider.dart';
 
 /// Un widget que muestra una única tarjeta de hábito.
 ///
@@ -21,17 +23,30 @@ class _HabitCardState extends State<HabitCard> {
   bool _isCompletedToday = false;
   int _currentStreak = 0;
   List<Completion> _recentCompletions = [];
+  late DateProvider _dateProvider;
 
   @override
   void initState() {
     super.initState();
+    // Escuchamos los cambios en DateProvider para recargar los datos.
+    _dateProvider = Provider.of<DateProvider>(context, listen: false);
+    _dateProvider.addListener(_loadCompletionData);
     _loadCompletionData();
+  }
+
+  @override
+  void dispose() {
+    _dateProvider.removeListener(_loadCompletionData);
+    super.dispose();
   }
 
   /// Carga todos los datos de completado y racha para el hábito.
   Future<void> _loadCompletionData() async {
     final allCompletions = await DatabaseHelper.instance.getCompletionsForHabit(widget.habit.id!);
-    final today = DateTime.now();
+    // Usamos la fecha simulada de DateProvider
+    final today = _dateProvider.simulatedToday;
+
+    if (!mounted) return; // <-- AÑADIDO: Evita llamar setState si el widget no está montado.
 
     setState(() {
       _isCompletedToday = allCompletions.any(
@@ -90,7 +105,8 @@ class _HabitCardState extends State<HabitCard> {
 
   /// Maneja el tap en el icono principal para marcar/desmarcar el hábito.
   Future<void> _toggleCompletion() async {
-    final today = DateTime.now();
+    // Usamos la fecha simulada de DateProvider
+    final today = _dateProvider.simulatedToday;
     if (_isCompletedToday) {
       await DatabaseHelper.instance.removeCompletion(widget.habit.id!, today);
     } else {
