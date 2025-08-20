@@ -73,7 +73,7 @@ class _HabitCardState extends State<HabitCard> {
       );
       recent.add(completionForDay);
     }
-    return recent.reversed.toList(); // Para que el día más antiguo esté primero
+    return recent; // Today on the left, then yesterday, etc.
   }
 
   /// Calcula la racha actual (simplificado para este checkpoint).
