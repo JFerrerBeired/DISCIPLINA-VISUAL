@@ -243,4 +243,59 @@ class DatabaseHelper {
     }
     return maxStreak;
   }
+
+  /// NOTE: Función de ayuda para desarrollo.
+  ///
+  /// Esta función es temporal y solo para fines de desarrollo.
+  /// NO LA USES en el flujo normal de la aplicación.
+  /// Siéntete libre de modificarla o eliminarla según tus necesidades.
+  /// NINGUNA otra funcionalidad debe depender de esta función.
+  ///
+  /// Inserta un conjunto de hábitos de ejemplo en la base de datos,
+  /// incluyendo algunos días de completado para simular historial.
+  /// Para asegurar un estado limpio, primero elimina todos los datos existentes.
+  /// Útil para poblar la base de datos para pruebas o demostraciones.
+  Future<void> insertSeedHabits() async {
+    // Primero, borramos todos los datos existentes para asegurar un estado limpio.
+    await deleteAllHabits();
+
+    final db = await database;
+    final today = DateTime.now();
+
+    // Lista de hábitos de ejemplo con fechas de creación más antiguas
+    final List<Habit> seedHabits = [
+      Habit(name: 'Leer 30 minutos', color: 0xFF4CAF50, creationDate: today.subtract(const Duration(days: 30))), // Verde
+      Habit(name: 'Meditar 10 minutos', color: 0xFF2196F3, creationDate: today.subtract(const Duration(days: 25))), // Azul
+      Habit(name: 'Hacer ejercicio', color: 0xFFFF9800, creationDate: today.subtract(const Duration(days: 20))), // Naranja
+      Habit(name: 'Beber 2L de agua', color: 0xFF00BCD4, creationDate: today.subtract(const Duration(days: 15))), // Cyan
+      Habit(name: 'Estudiar Flutter', color: 0xFF9C27B0, creationDate: today.subtract(const Duration(days: 10))), // Púrpura
+      Habit(name: 'Escribir en el diario', color: 0xFF795548, creationDate: today.subtract(const Duration(days: 5))), // Marrón
+    ];
+
+    // Días de completado para cada hábito (días atrás desde hoy)
+    final Map<String, List<int>> completionDays = {
+      'Leer 30 minutos': [1, 2, 3, 5, 6, 8, 10, 12, 15, 16, 17, 20],
+      'Meditar 10 minutos': [1, 3, 4, 7, 9, 11, 14, 18],
+      'Hacer ejercicio': [2, 4, 6, 8, 10, 12, 14, 16, 18, 19],
+      'Beber 2L de agua': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+      'Estudiar Flutter': [1, 5, 8, 9],
+      'Escribir en el diario': [3, 4],
+    };
+
+    // Inserta cada hábito y sus completados en la base de datos
+    for (final habit in seedHabits) {
+      final habitId = await createHabit(habit);
+
+      // Añadir completados para el hábito recién creado
+      if (completionDays.containsKey(habit.name)) {
+        for (final dayAgo in completionDays[habit.name]!) {
+          // Asegurarse de que la fecha de completado no sea anterior a la de creación
+          final completionDate = today.subtract(Duration(days: dayAgo));
+          if (completionDate.isAfter(habit.creationDate)) {
+            await addCompletion(habitId, completionDate);
+          }
+        }
+      }
+    }
+  }
 }
