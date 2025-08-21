@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:disciplina_visual/screens/dashboard_screen.dart';
 import 'package:disciplina_visual/screens/create_habit_screen.dart';
-import 'package:disciplina_visual/screens/habit_detail_screen.dart';
 import 'package:disciplina_visual/utils/date_provider.dart';
 
 void main() {

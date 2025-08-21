@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -242,5 +243,76 @@ class DatabaseHelper {
       }
     }
     return maxStreak;
+  }
+
+  /// Calcula y devuelve una lista de todas las rachas pasadas.
+  static List<int> calculatePastStreaks(List<Completion> completions) {
+    if (completions.isEmpty) return [];
+
+    final List<int> pastStreaks = [];
+    // Ordenar las completaciones por fecha ascendente
+    completions.sort((a, b) => a.date.compareTo(b.date));
+
+    int currentStreak = 0;
+    for (int i = 0; i < completions.length; i++) {
+      if (i == 0) {
+        currentStreak = 1;
+      } else {
+        final Duration difference = completions[i].date.difference(completions[i-1].date);
+        if (difference.inDays == 1) {
+          currentStreak++;
+        } else if (difference.inDays > 1) {
+          // Racha rota, guardar la anterior y empezar una nueva
+          pastStreaks.add(currentStreak);
+          currentStreak = 1;
+        }
+      }
+    }
+    // Añadir la última racha si existe
+    if (currentStreak > 0) {
+      pastStreaks.add(currentStreak);
+    }
+    return pastStreaks;
+  }
+
+  /// Genera los datos para el gráfico de análisis.
+  /// Calcula el porcentaje de completado semanal.
+  static List<FlSpot> getChartData(List<Completion> completions, DateTime simulatedToday) {
+    final Map<int, int> weeklyCompletions = {}; // Week index -> number of completions
+    final Map<int, int> totalDaysInWeek = {}; // Week index -> total days in week
+
+    // Normalizar completados a inicio de día
+    final Set<DateTime> completedDates = completions.map((c) =>
+        DateTime(c.date.year, c.date.month, c.date.day)).toSet();
+
+    // Considerar las últimas 8 semanas para el gráfico
+    for (int i = 0; i < 8 * 7; i++) { // 8 semanas * 7 días/semana
+      final date = simulatedToday.subtract(Duration(days: i));
+      // Calculate a simple week index relative to simulatedToday
+      // Week 0 is the current week (days 0-6 from simulatedToday)
+      // Week 1 is the previous week (days 7-13 from simulatedToday), etc.
+      final weekIndex = (simulatedToday.difference(date).inDays / 7).floor();
+
+      totalDaysInWeek.update(weekIndex, (value) => value + 1, ifAbsent: () => 1);
+      if (completedDates.contains(date)) {
+        weeklyCompletions.update(weekIndex, (value) => value + 1, ifAbsent: () => 1);
+      }
+    }
+
+    final List<FlSpot> spots = [];
+    // Get unique week indices and sort them
+    final List<int> weeks = totalDaysInWeek.keys.toList()..sort();
+
+    // Iterate through the sorted week indices to create spots
+    for (int i = 0; i < weeks.length; i++) {
+      final week = weeks[i];
+      final completed = weeklyCompletions[week] ?? 0;
+      final total = totalDaysInWeek[week] ?? 1; // Avoid division by zero
+      final percentage = (completed / total) * 100;
+      // The x-value should represent the order of weeks, so 'i' is fine.
+      // The y-value is the percentage.
+      spots.add(FlSpot(i.toDouble(), percentage));
+    }
+    return spots;
   }
 }
