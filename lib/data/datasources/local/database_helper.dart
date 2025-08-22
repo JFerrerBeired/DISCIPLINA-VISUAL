@@ -3,8 +3,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-import '../models/habit.dart';
-import '../models/completion.dart';
+import '../../models/habit.dart';
+import '../../models/completion.dart';
 
 /// Clase Singleton para gestionar la base de datos de la aplicación.
 ///
@@ -166,6 +166,7 @@ class DatabaseHelper {
     await db.delete('completions'); // También borramos los completados asociados
   }
 
+
   /// Elimina registros de completado cuya fecha sea posterior a la fecha de corte.
   Future<void> deleteFutureCompletions(DateTime cutoffDate) async {
     final db = await database;
@@ -177,72 +178,6 @@ class DatabaseHelper {
     );
   }
 
-  /// Calcula la racha actual de un hábito.
-  /// Recibe una lista de completados y la fecha actual de referencia.
-  int calculateCurrentStreak(List<Completion> completions, DateTime today) {
-    if (completions.isEmpty) return 0;
-
-    // Normalizar todas las fechas de completado al inicio del día para una comparación precisa
-    final Set<DateTime> completedDates = completions.map((c) =>
-        DateTime(c.date.year, c.date.month, c.date.day)).toSet();
-
-    int streak = 0;
-    DateTime checkDate = DateTime(today.year, today.month, today.day); // Empezar desde hoy, normalizado
-
-    // Si el hábito no se completó hoy, la racha actual es 0 a menos que se haya completado ayer
-    if (!completedDates.contains(checkDate)) {
-      checkDate = checkDate.subtract(const Duration(days: 1)); // Mover a ayer
-      if (!completedDates.contains(checkDate)) {
-        return 0; // No completado hoy ni ayer, racha 0
-      }
-    }
-
-    // Iterar hacia atrás desde checkDate (que es hoy o ayer) para encontrar días completados consecutivos.
-    while (completedDates.contains(checkDate)) {
-      streak++;
-      checkDate = checkDate.subtract(const Duration(days: 1));
-    }
-
-    return streak;
-  }
-
-  /// Calcula la racha récord de un hábito.
-  /// Recibe una lista de completados.
-  int calculateRecordStreak(List<Completion> completions) {
-    if (completions.isEmpty) return 0;
-
-    int maxStreak = 0;
-    int currentStreak = 0;
-
-    // Ordenar las completaciones por fecha ascendente para calcular rachas históricas
-    completions.sort((a, b) => a.date.compareTo(b.date));
-
-    // Usar un Set para un acceso rápido a las fechas completadas
-    final Set<DateTime> completedDates = completions.map((c) =>
-        DateTime(c.date.year, c.date.month, c.date.day)).toSet();
-
-    if (completedDates.isEmpty) return 0;
-
-    // Iterar a través de las fechas completadas para encontrar rachas
-    List<DateTime> sortedUniqueDates = completedDates.toList()..sort();
-
-    for (int i = 0; i < sortedUniqueDates.length; i++) {
-      if (i == 0) {
-        currentStreak = 1;
-      } else {
-        final Duration difference = sortedUniqueDates[i].difference(sortedUniqueDates[i-1]);
-        if (difference.inDays == 1) {
-          currentStreak++;
-        } else if (difference.inDays > 1) {
-          currentStreak = 1;
-        }
-      }
-      if (currentStreak > maxStreak) {
-        maxStreak = currentStreak;
-      }
-    }
-    return maxStreak;
-  }
 
   /// NOTE: Función de ayuda para desarrollo.
   ///
