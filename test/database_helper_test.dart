@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:disciplina_visual/models/habit.dart';
-import 'package:disciplina_visual/models/completion.dart';
-import 'package:disciplina_visual/services/database_helper.dart';
+import 'package:disciplina_visual/data/models/habit.dart';
+
+import 'package:disciplina_visual/data/datasources/local/database_helper.dart';
 
 void main() {
   sqfliteFfiInit(); // Initialize FFI for testing
@@ -52,7 +52,7 @@ void main() {
       final habit = Habit(name: 'Habit to Delete', color: 0xFF0000FF, creationDate: DateTime.now());
       final id = await dbHelper.createHabit(habit);
 
-      final rowsAffected = await dbHelper.deleteHabit(id!);
+      final rowsAffected = await dbHelper.deleteHabit(id);
       expect(rowsAffected, 1);
 
       final habits = await dbHelper.getAllHabits();
@@ -66,7 +66,7 @@ void main() {
       final date1 = DateTime.now();
       final date2 = DateTime.now().subtract(const Duration(days: 1));
 
-      await dbHelper.addCompletion(habitId!, date1);
+      await dbHelper.addCompletion(habitId, date1);
       await dbHelper.addCompletion(habitId, date2);
 
       final completions = await dbHelper.getCompletionsForHabit(habitId);
@@ -81,7 +81,7 @@ void main() {
       final habitId = await dbHelper.createHabit(habit);
 
       final date = DateTime.now();
-      await dbHelper.addCompletion(habitId!, date);
+      await dbHelper.addCompletion(habitId, date);
 
       var completions = await dbHelper.getCompletionsForHabit(habitId);
       expect(completions.length, 1);
