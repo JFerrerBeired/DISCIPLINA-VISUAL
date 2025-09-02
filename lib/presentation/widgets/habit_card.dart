@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:disciplina_visual/data/models/habit.dart';
+
 import 'package:disciplina_visual/presentation/providers/habit_card_view_model.dart';
 import 'package:disciplina_visual/data/models/completion.dart';
 

@@ -26,6 +26,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   }
 
   void _saveHabit() async {
+    if (!mounted) return;
     final String name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -42,6 +43,8 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       name: name,
       color: _selectedColor,
     );
+
+    if (!mounted) return;
 
     if (success) {
       Navigator.pop(context, true);

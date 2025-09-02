@@ -194,7 +194,6 @@ class DatabaseHelper {
     // Primero, borramos todos los datos existentes para asegurar un estado limpio.
     await deleteAllHabits();
 
-    final db = await database;
     final today = DateTime.now();
 
     // Lista de hábitos de ejemplo con fechas de creación más antiguas

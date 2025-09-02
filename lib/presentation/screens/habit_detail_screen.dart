@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:disciplina_visual/data/models/habit.dart';
 import 'package:disciplina_visual/presentation/providers/habit_detail_view_model.dart';
 import 'package:disciplina_visual/presentation/screens/create_habit_screen.dart';
-import 'package:disciplina_visual/presentation/utils/date_provider.dart';
+
 import 'package:disciplina_visual/data/models/completion.dart';
 
 class HabitDetailScreen extends StatefulWidget {
@@ -291,8 +291,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                                         style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold)),
-                                  ))
-                              .toList(),
+                                  )),
                         ],
                       ),
                       Expanded(
@@ -387,7 +386,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                                             ),
                                     ),
                                   );
-                                }).toList(),
+                                }),
                               ],
                             );
                           },

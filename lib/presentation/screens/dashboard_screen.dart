@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:disciplina_visual/presentation/providers/dashboard_view_model.dart';
-import 'package:disciplina_visual/data/models/habit.dart';
+
 import 'package:disciplina_visual/domain/repositories/habit_repository.dart';
 import 'package:disciplina_visual/domain/usecases/add_completion.dart';
 import 'package:disciplina_visual/domain/usecases/calculate_streak.dart';
