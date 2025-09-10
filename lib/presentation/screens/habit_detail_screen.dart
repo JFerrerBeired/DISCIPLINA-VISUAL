@@ -430,7 +430,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                                                   value.toInt()) *
                                               7));
                                   return SideTitleWidget(
-                                    axisSide: meta.axisSide,
+                                    meta: meta,
+                                    space: 0,
                                     child: Text(DateFormat('MMM dd').format(date),
                                         style: const TextStyle(fontSize: 10)),
                                   );
