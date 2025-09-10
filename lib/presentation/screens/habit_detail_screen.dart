@@ -480,7 +480,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       final weekIndex = (simulatedToday.difference(date).inDays / 7).floor();
       totalDaysInWeek.update(weekIndex, (value) => value + 1,
           ifAbsent: () => 1);
-      if (completedDates.contains(date)) {
+      final normalizedDate = DateTime(date.year, date.month, date.day);
+      if (completedDates.contains(normalizedDate)) {
         weeklyCompletions.update(weekIndex, (value) => value + 1,
             ifAbsent: () => 1);
       }
@@ -488,11 +489,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
 
     final List<FlSpot> spots = [];
     final List<int> weeks = totalDaysInWeek.keys.toList()..sort();
-    for (int i = 0; i < weeks.length; i++) {
-      final week = weeks[i];
+    final reversedWeeks = weeks.reversed.toList();
+
+    for (int i = 0; i < reversedWeeks.length; i++) {
+      final week = reversedWeeks[i];
       final completed = weeklyCompletions[week] ?? 0;
       final total = totalDaysInWeek[week] ?? 1;
-      final percentage = (completed / total) * 100;
+      final percentage = total > 0 ? (completed / total) * 100 : 0.0;
       spots.add(FlSpot(i.toDouble(), percentage));
     }
     return spots;
