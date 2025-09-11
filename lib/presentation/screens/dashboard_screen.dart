@@ -10,7 +10,7 @@ import 'package:disciplina_visual/domain/usecases/remove_completion.dart';
 import 'package:disciplina_visual/presentation/providers/habit_card_view_model.dart';
 import 'package:disciplina_visual/presentation/widgets/habit_card.dart';
 import 'package:disciplina_visual/presentation/utils/date_provider.dart';
-import 'package:disciplina_visual/presentation/screens/habit_detail_screen.dart';
+import 'package:disciplina_visual/presentation/screens/habit_detail/habit_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
