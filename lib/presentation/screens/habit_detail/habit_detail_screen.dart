@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:disciplina_visual/data/models/habit.dart';
 import 'package:disciplina_visual/presentation/providers/habit_detail_view_model.dart';
 import 'package:disciplina_visual/presentation/screens/create_habit_screen.dart';
-import 'package:disciplina_visual/data/models/completion.dart';
+
 
 import 'widgets/analysis_chart.dart';
 import 'widgets/habit_heatmap.dart';
@@ -248,7 +248,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 AnalysisChart(
                   completions: viewModel.completions,
                   simulatedToday: viewModel.dateProvider.simulatedToday,
-                  habitColor: _displayHabit.color,
+                  habit: _displayHabit,
                   dateProvider: viewModel.dateProvider,
                 ),
               ],

@@ -14,14 +14,14 @@ class CreateHabitScreen extends StatefulWidget {
 
 class _CreateHabitScreenState extends State<CreateHabitScreen> {
   final TextEditingController _nameController = TextEditingController();
-  int _selectedColor = Colors.blue.value;
+  Color _selectedColor = Colors.blue;
 
   @override
   void initState() {
     super.initState();
     if (widget.habit != null) {
       _nameController.text = widget.habit!.name;
-      _selectedColor = widget.habit!.color;
+      _selectedColor = Color(widget.habit!.color);
     }
   }
 
@@ -41,7 +41,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     final success = await viewModel.saveHabit(
       habit: widget.habit,
       name: name,
-      color: _selectedColor,
+      color: _selectedColor.value,
     );
 
     if (!mounted) return;
@@ -105,7 +105,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      _selectedColor = color.value;
+                      _selectedColor = color;
                     });
                   },
                   child: Container(
@@ -115,7 +115,7 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                       color: color,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _selectedColor == color.value
+                        color: _selectedColor == color
                             ? Colors.black
                             : Colors.transparent,
                         width: 3,

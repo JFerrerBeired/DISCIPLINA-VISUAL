@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:disciplina_visual/data/datasources/local/database_helper.dart';
 import 'package:disciplina_visual/data/repositories/habit_repository_impl.dart';
 import 'package:disciplina_visual/domain/repositories/habit_repository.dart';
@@ -19,7 +20,9 @@ import 'package:disciplina_visual/presentation/screens/create_habit_screen.dart'
 import 'package:disciplina_visual/presentation/screens/dashboard_screen.dart';
 import 'package:disciplina_visual/presentation/utils/date_provider.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('es', null);
   runApp(const MyApp());
 }
 
