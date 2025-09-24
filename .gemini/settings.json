@@ -1,4 +1,7 @@
 {
+  "context": {
+    "fileName": [".prompts/Gemini.md", ".prompts/flutter.md"]
+  },
   "mcpServers": {
     "dart": {
       "command": "dart",
