@@ -18,7 +18,7 @@ import 'habit_detail_view_model_test.mocks.dart';
   RemoveCompletion,
   DeleteHabit,
   CalculateStreak,
-  DateProvider
+  DateProvider,
 ])
 void main() {
   late MockGetCompletions mockGetCompletions;
@@ -46,9 +46,7 @@ void main() {
     );
   });
 
-  final completions = [
-    Completion(id: 1, habitId: 1, date: DateTime.now())
-  ];
+  final completions = [Completion(id: 1, habitId: 1, date: DateTime.now())];
   final streak = Streak(current: 1, record: 1);
   final today = DateTime.now();
 
@@ -84,17 +82,20 @@ void main() {
     verify(mockGetCompletions(1));
   });
 
-  test('removeCompletionForHabit calls removeCompletion and reloads data', () async {
-    when(mockRemoveCompletion(any, any)).thenAnswer((_) async {});
-    when(mockGetCompletions(any)).thenAnswer((_) async => completions);
-    when(mockCalculateStreak(any, any)).thenReturn(streak);
-    when(mockDateProvider.simulatedToday).thenReturn(today);
+  test(
+    'removeCompletionForHabit calls removeCompletion and reloads data',
+    () async {
+      when(mockRemoveCompletion(any, any)).thenAnswer((_) async {});
+      when(mockGetCompletions(any)).thenAnswer((_) async => completions);
+      when(mockCalculateStreak(any, any)).thenReturn(streak);
+      when(mockDateProvider.simulatedToday).thenReturn(today);
 
-    await viewModel.removeCompletionForHabit(1, today);
+      await viewModel.removeCompletionForHabit(1, today);
 
-    verify(mockRemoveCompletion(1, today));
-    verify(mockGetCompletions(1));
-  });
+      verify(mockRemoveCompletion(1, today));
+      verify(mockGetCompletions(1));
+    },
+  );
 
   test('deleteHabitById calls deleteHabit', () async {
     when(mockDeleteHabit(any)).thenAnswer((_) async => 1);

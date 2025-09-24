@@ -1,4 +1,3 @@
-
 /// Modelo de datos para un Hábito.
 ///
 /// Representa un único hábito que el usuario desea seguir.
@@ -16,12 +15,7 @@ class Habit {
   });
 
   /// Crea una copia de este objeto [Habit] con los valores proporcionados.
-  Habit copyWith({
-    int? id,
-    String? name,
-    int? color,
-    DateTime? creationDate,
-  }) {
+  Habit copyWith({int? id, String? name, int? color, DateTime? creationDate}) {
     return Habit(
       id: id ?? this.id,
       name: name ?? this.name,

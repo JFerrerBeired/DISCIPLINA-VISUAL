@@ -17,7 +17,12 @@ void main() {
     usecase = UpdateHabit(mockHabitRepository);
   });
 
-  final tHabit = Habit(id: 1, name: 'Test Habit', color: 1, creationDate: DateTime.now());
+  final tHabit = Habit(
+    id: 1,
+    name: 'Test Habit',
+    color: 1,
+    creationDate: DateTime.now(),
+  );
 
   test(
     'should call updateHabit on the repository with the correct habit',

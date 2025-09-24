@@ -5,7 +5,6 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:disciplina_visual/main.dart';
 import 'package:disciplina_visual/presentation/screens/dashboard_screen.dart';
@@ -17,7 +16,7 @@ void main() {
 
     // Verify that our dashboard screen is shown.
     expect(find.byType(DashboardScreen), findsOneWidget);
-    
+
     // Verify that the title is present.
     expect(find.textContaining('Dashboard de Hábitos'), findsOneWidget);
   });

@@ -25,7 +25,7 @@ void main() {
 
   test('loadHabits success', () async {
     final habits = [
-      Habit(id: 1, name: 'Test Habit', color: 0, creationDate: DateTime.now())
+      Habit(id: 1, name: 'Test Habit', color: 0, creationDate: DateTime.now()),
     ];
     when(mockGetAllHabits.call()).thenAnswer((_) async => habits);
 

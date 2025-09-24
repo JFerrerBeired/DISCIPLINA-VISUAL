@@ -42,16 +42,23 @@ void main() {
       });
 
       test('should be 3 for a three-day streak ending today', () {
-        final completions = [comp(today), comp(yesterday), comp(dayBeforeYesterday)];
+        final completions = [
+          comp(today),
+          comp(yesterday),
+          comp(dayBeforeYesterday),
+        ];
         final streak = calculateStreak.call(completions, today);
         expect(streak.current, 3);
       });
 
-      test('should count streak ending yesterday if today is not completed', () {
-        final completions = [comp(yesterday), comp(dayBeforeYesterday)];
-        final streak = calculateStreak.call(completions, today);
-        expect(streak.current, 2);
-      });
+      test(
+        'should count streak ending yesterday if today is not completed',
+        () {
+          final completions = [comp(yesterday), comp(dayBeforeYesterday)];
+          final streak = calculateStreak.call(completions, today);
+          expect(streak.current, 2);
+        },
+      );
 
       test('should ignore duplicate completions on the same day', () {
         final completions = [comp(today), comp(today), comp(yesterday)];
@@ -87,7 +94,10 @@ void main() {
       });
 
       test('should handle a single long streak', () {
-        final completions = List.generate(10, (i) => comp(today.subtract(Duration(days: i))));
+        final completions = List.generate(
+          10,
+          (i) => comp(today.subtract(Duration(days: i))),
+        );
         final streak = calculateStreak.call(completions, today);
         expect(streak.record, 10);
       });

@@ -66,7 +66,9 @@ class HabitCardViewModel extends ChangeNotifier {
   }
 
   List<Completion> _getRecentCompletions(
-      List<Completion> allCompletions, DateTime today) {
+    List<Completion> allCompletions,
+    DateTime today,
+  ) {
     final List<Completion> recent = [];
     for (int i = 0; i < 7; i++) {
       final date = today.subtract(Duration(days: i));
@@ -93,7 +95,9 @@ class HabitCardViewModel extends ChangeNotifier {
   }
 
   Future<void> toggleCompletionForDate(
-      DateTime date, bool isCurrentlyCompleted) async {
+    DateTime date,
+    bool isCurrentlyCompleted,
+  ) async {
     if (isCurrentlyCompleted) {
       await removeCompletion(habit.id!, date);
     } else {

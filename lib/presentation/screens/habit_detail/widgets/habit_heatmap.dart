@@ -28,9 +28,11 @@ class HabitHeatmap extends StatelessWidget {
     startDate = startDate.subtract(Duration(days: startDate.weekday - 1));
     List<DateTime?> currentWeek = List.filled(7, null);
 
-    for (DateTime d = startDate;
-        d.isBefore(endDate.add(const Duration(days: 1)));
-        d = d.add(const Duration(days: 1))) {
+    for (
+      DateTime d = startDate;
+      d.isBefore(endDate.add(const Duration(days: 1)));
+      d = d.add(const Duration(days: 1))
+    ) {
       int weekdayIndex = (d.weekday - 1 + 7) % 7;
       currentWeek[weekdayIndex] = d;
 
@@ -47,7 +49,15 @@ class HabitHeatmap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> weekdays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+    final List<String> weekdays = [
+      'Lun',
+      'Mar',
+      'Mié',
+      'Jue',
+      'Vie',
+      'Sáb',
+      'Dom',
+    ];
     final List<List<DateTime?>> weeksData = _calculateWeeksData();
 
     return SizedBox(
@@ -58,16 +68,20 @@ class HabitHeatmap extends StatelessWidget {
           Column(
             children: [
               const SizedBox(height: 35),
-              ...weekdays
-                  .map((dayName) => Container(
-                        height: 35,
-                        alignment: Alignment.center,
-                        margin: const EdgeInsets.all(2.0),
-                        child: Text(dayName,
-                            style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold)),
-                      )),
+              ...weekdays.map(
+                (dayName) => Container(
+                  height: 35,
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.all(2.0),
+                  child: Text(
+                    dayName,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
           Expanded(
@@ -78,18 +92,21 @@ class HabitHeatmap extends StatelessWidget {
               itemBuilder: (context, weekIndex) {
                 final week = weeksData[weekIndex];
                 final firstDayOfThisWeek = week.firstWhere(
-                    (day) => day != null,
-                    orElse: () => null);
+                  (day) => day != null,
+                  orElse: () => null,
+                );
                 String monthIndicator = '';
                 if (firstDayOfThisWeek != null) {
                   if (weekIndex == 0) {
-                    monthIndicator =
-                        DateFormat('MMM').format(firstDayOfThisWeek);
+                    monthIndicator = DateFormat(
+                      'MMM',
+                    ).format(firstDayOfThisWeek);
                   } else {
                     final previousWeek = weeksData[weekIndex - 1];
-                    final lastDayOfPreviousWeek =
-                        previousWeek.lastWhere((day) => day != null,
-                            orElse: () => null);
+                    final lastDayOfPreviousWeek = previousWeek.lastWhere(
+                      (day) => day != null,
+                      orElse: () => null,
+                    );
                     bool foundNewMonthFirstDay = false;
                     for (DateTime? dayInCurrentWeek in week) {
                       if (dayInCurrentWeek != null &&
@@ -97,8 +114,9 @@ class HabitHeatmap extends StatelessWidget {
                         if (lastDayOfPreviousWeek != null &&
                             dayInCurrentWeek.month !=
                                 lastDayOfPreviousWeek.month) {
-                          monthIndicator = DateFormat('MMM')
-                              .format(dayInCurrentWeek);
+                          monthIndicator = DateFormat(
+                            'MMM',
+                          ).format(dayInCurrentWeek);
                           foundNewMonthFirstDay = true;
                           break;
                         }
@@ -108,8 +126,9 @@ class HabitHeatmap extends StatelessWidget {
                         lastDayOfPreviousWeek != null &&
                         firstDayOfThisWeek.month !=
                             lastDayOfPreviousWeek.month) {
-                      monthIndicator = DateFormat('MMM')
-                          .format(firstDayOfThisWeek);
+                      monthIndicator = DateFormat(
+                        'MMM',
+                      ).format(firstDayOfThisWeek);
                     }
                   }
                 }
@@ -119,16 +138,23 @@ class HabitHeatmap extends StatelessWidget {
                       width: 35,
                       height: 35,
                       alignment: Alignment.center,
-                      child: Text(monthIndicator,
-                          style: const TextStyle(
-                              fontSize: 10, color: Colors.grey)),
+                      child: Text(
+                        monthIndicator,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                     ...week.map((day) {
-                      final isCompleted = day != null &&
-                          completions.any((c) =>
-                              c.date.year == day.year &&
-                              c.date.month == day.month &&
-                              c.date.day == day.day);
+                      final isCompleted =
+                          day != null &&
+                          completions.any(
+                            (c) =>
+                                c.date.year == day.year &&
+                                c.date.month == day.month &&
+                                c.date.day == day.day,
+                          );
                       return GestureDetector(
                         onTap: day == null || !isEditing
                             ? null
@@ -141,10 +167,9 @@ class HabitHeatmap extends StatelessWidget {
                             color: day == null
                                 ? Colors.transparent
                                 : (isCompleted
-                                    ? Color(habit.color)
-                                    : Colors.grey.shade200),
-                            borderRadius:
-                                BorderRadius.circular(4.0),
+                                      ? Color(habit.color)
+                                      : Colors.grey.shade200),
+                            borderRadius: BorderRadius.circular(4.0),
                           ),
                           child: day == null
                               ? null

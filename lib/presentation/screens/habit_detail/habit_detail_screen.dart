@@ -4,7 +4,6 @@ import 'package:disciplina_visual/data/models/habit.dart';
 import 'package:disciplina_visual/presentation/providers/habit_detail_view_model.dart';
 import 'package:disciplina_visual/presentation/screens/create_habit_screen.dart';
 
-
 import 'widgets/analysis_chart.dart';
 import 'widgets/habit_heatmap.dart';
 import 'widgets/streak_metrics.dart';
@@ -64,7 +63,9 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   }
 
   Future<void> _handleHeatmapCellTap(
-      DateTime date, bool isCurrentlyCompleted) async {
+    DateTime date,
+    bool isCurrentlyCompleted,
+  ) async {
     final action = isCurrentlyCompleted ? "desmarcar" : "marcar";
     final confirm = await showDialog<bool>(
       context: context,
@@ -72,7 +73,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         return AlertDialog(
           title: Text("Editar ${_displayHabit.name}"),
           content: Text(
-              "¿Deseas $action este hábito para el día ${date.day}/${date.month}?"),
+            "¿Deseas $action este hábito para el día ${date.day}/${date.month}?",
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -117,7 +119,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         return AlertDialog(
           title: const Text("Eliminar Hábito"),
           content: Text(
-              "¿Estás seguro de que deseas eliminar el hábito '${_displayHabit.name}'? Esta acción es irreversible y eliminará todos sus datos de completado."),
+            "¿Estás seguro de que deseas eliminar el hábito '${_displayHabit.name}'? Esta acción es irreversible y eliminará todos sus datos de completado.",
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -125,7 +128,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.red),
+              ),
             ),
           ],
         );
@@ -184,9 +190,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   Text(
                     _displayHabit.name,
                     style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(_displayHabit.color)),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(_displayHabit.color),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   const Text('No hay datos de completado para este hábito.'),
@@ -204,9 +211,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   child: Text(
                     _displayHabit.name,
                     style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(_displayHabit.color)),
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(_displayHabit.color),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -215,9 +223,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Actividad Reciente',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Actividad Reciente',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     IconButton(
                       icon: Icon(_isEditingHeatmap ? Icons.check : Icons.edit),
                       onPressed: () {
@@ -241,15 +253,14 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   scrollController: _scrollController,
                 ),
                 const SizedBox(height: 20),
-                const Text('Gráfico de Análisis',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Gráfico de Análisis',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 10),
                 AnalysisChart(
-                  completions: viewModel.completions,
-                  simulatedToday: viewModel.dateProvider.simulatedToday,
-                  habit: _displayHabit,
-                  dateProvider: viewModel.dateProvider,
+                  chartData: viewModel.chartData,
+                  habitColor: _displayHabit.color,
                 ),
               ],
             ),
