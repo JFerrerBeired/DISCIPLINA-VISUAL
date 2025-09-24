@@ -8,7 +8,8 @@ class CalculateCompletionTotalsUseCase implements CalculateChartData {
   @override
   List<ChartDataPoint> call(ChartCalculationParams params) {
     final Map<DateTime, List<Completion>> groupedCompletions =
-        CompletionsGroupingHelper.groupBy(params.completions, params.grouping);
+        CompletionsGroupingHelper.groupBy(
+            params.completions, params.startDate, params.endDate, params.grouping);
 
     final List<ChartDataPoint> chartPoints = [];
 
@@ -18,7 +19,7 @@ class CalculateCompletionTotalsUseCase implements CalculateChartData {
     for (var date in sortedKeys) {
       final completionsInPeriod = groupedCompletions[date]!;
       final total = completionsInPeriod.length;
-      chartPoints.add(ChartDataPoint(x: date.millisecondsSinceEpoch.toDouble(), y: total.toDouble()));
+      chartPoints.add(ChartDataPoint(date: date, y: total.toDouble()));
     }
 
     return chartPoints;

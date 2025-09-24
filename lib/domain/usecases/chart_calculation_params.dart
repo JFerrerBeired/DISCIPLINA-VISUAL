@@ -9,10 +9,13 @@ enum TimeGrouping {
 class ChartCalculationParams {
   final List<Completion> completions;
   final TimeGrouping grouping;
-  // Puedes añadir más parámetros aquí si son comunes a varios cálculos
+  final DateTime startDate; 
+  final DateTime endDate; 
 
   ChartCalculationParams({
     required this.completions,
     required this.grouping,
+    required this.startDate,
+    required this.endDate,
   });
 }

@@ -39,25 +39,22 @@ class AnalysisChart extends StatelessWidget {
 
 
     // Determine the first date for label generation from the chartData
-    // Assuming chartData is sorted by x (timestamp)
-    // The x value from ChartDataPoint is a timestamp (millisecondsSinceEpoch)
-    // We need to convert it back to DateTime for formatting
-    final DateTime firstDateForLabels = DateTime.fromMillisecondsSinceEpoch(chartData.first.x.toInt());
+    // Assuming chartData is sorted by date
+    final DateTime firstDateForLabels = chartData.first.date;
 
 
     final List<BarChartGroupData> barGroups = chartData.map((dataPoint) {
       // Calculate the week index relative to the firstDateForLabels
       // This is needed because fl_chart's BarChartGroupData.x expects an integer index,
       // not a raw timestamp. We're effectively re-indexing the data points.
-      final DateTime currentDate = DateTime.fromMillisecondsSinceEpoch(dataPoint.x.toInt());
-      final int weekIndex = (currentDate.difference(firstDateForLabels).inDays / 7).floor();
+      final int weekIndex = (dataPoint.date.difference(firstDateForLabels).inDays / 7).floor();
 
       return BarChartGroupData(
         x: weekIndex, // Use the calculated week index
         barRods: [
           BarChartRodData(
             toY: dataPoint.y,
-            color: Color(habitColor), // Changed
+            color: Color(habitColor),
             width: 8,
             borderRadius: BorderRadius.circular(2),
           ),
@@ -99,16 +96,10 @@ class AnalysisChart extends StatelessWidget {
                 interval: (chartData.length / 4).ceilToDouble(),
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() >= chartData.length) return const Text('');
-                  // The x value from ChartDataPoint is a timestamp (millisecondsSinceEpoch)
-                  // We need to convert it back to DateTime for formatting
                   // The 'value' here is the index from fl_chart, which corresponds to our weekIndex
                   // We need to find the corresponding ChartDataPoint based on this index
-                  // and then get its original timestamp.
-                  // This assumes chartData is dense and sorted by weekIndex.
-                  // A more robust solution might involve storing the original DateTime in ChartDataPoint
-                  // or mapping the index back to the original timestamp.
-                  // For now, we'll use the firstDateForLabels and the weekIndex to reconstruct the date.
-                  final date = firstDateForLabels.add(Duration(days: value.toInt() * 7));
+                  // and then get its original date.
+                  final date = chartData[value.toInt()].date;
                   return Text(
                     DateFormat('dd\nMMM', 'es').format(date),
                     style: const TextStyle(fontSize: 10),

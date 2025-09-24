@@ -50,7 +50,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   }
 
   void _loadCompletions() {
-    _viewModel.loadCompletions(widget.habit.id!);
+    _viewModel.loadCompletions(widget.habit.id!, _displayHabit);
   }
 
   void _scrollToMaxExtent() {
