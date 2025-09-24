@@ -203,6 +203,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
           }
 
           return SingleChildScrollView(
+            key: const PageStorageKey<String>('habitDetail'),
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
