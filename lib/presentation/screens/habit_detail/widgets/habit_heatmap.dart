@@ -86,6 +86,7 @@ class HabitHeatmap extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
+              key: const PageStorageKey<String>('habitHeatmap'),
               controller: scrollController,
               scrollDirection: Axis.horizontal,
               itemCount: weeksData.length,
