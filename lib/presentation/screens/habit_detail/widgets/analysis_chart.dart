@@ -7,11 +7,13 @@ class AnalysisChart extends StatelessWidget {
   final List<ChartDataPoint> chartData;
   final int habitColor;
   final int maxVisibleColumns; // Maximum number of columns to show at once
+  final ScrollController scrollController;
 
   const AnalysisChart({
     super.key,
     required this.chartData,
     required this.habitColor,
+    required this.scrollController,
     this.maxVisibleColumns = 8,
   });
 
@@ -53,6 +55,7 @@ class AnalysisChart extends StatelessWidget {
           
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
+            controller: scrollController,
             child: Container(
               width: totalChartWidth,
               padding: const EdgeInsets.only(left: 8.0, right: 8.0),

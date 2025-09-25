@@ -20,6 +20,7 @@ class HabitDetailScreen extends StatefulWidget {
 class _HabitDetailScreenState extends State<HabitDetailScreen> {
   late HabitDetailViewModel _viewModel;
   late ScrollController _scrollController;
+  late ScrollController _analysisChartScrollController;
   bool _isEditingHeatmap = false;
   late Habit _displayHabit;
 
@@ -29,6 +30,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     _displayHabit = widget.habit;
     _viewModel = Provider.of<HabitDetailViewModel>(context, listen: false);
     _scrollController = ScrollController();
+    _analysisChartScrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompletions();
       _scrollToMaxExtent();
@@ -40,6 +42,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
   void dispose() {
     _viewModel.removeListener(_onViewModelUpdated);
     _scrollController.dispose();
+    _analysisChartScrollController.dispose();
     super.dispose();
   }
 
@@ -58,6 +61,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       await Future.delayed(const Duration(milliseconds: 50));
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+      if (_analysisChartScrollController.hasClients) {
+        _analysisChartScrollController
+            .jumpTo(_analysisChartScrollController.position.maxScrollExtent);
       }
     });
   }
@@ -262,6 +269,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 AnalysisChart(
                   chartData: viewModel.chartData,
                   habitColor: _displayHabit.color,
+                  scrollController: _analysisChartScrollController,
                 ),
               ],
             ),
