@@ -35,21 +35,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       _loadCompletions();
       _scrollToMaxExtent();
     });
-    _viewModel.addListener(_onViewModelUpdated);
   }
 
   @override
   void dispose() {
-    _viewModel.removeListener(_onViewModelUpdated);
     _scrollController.dispose();
     _analysisChartScrollController.dispose();
     super.dispose();
-  }
-
-  void _onViewModelUpdated() {
-    if (mounted) {
-      setState(() {});
-    }
   }
 
   void _loadCompletions() {
