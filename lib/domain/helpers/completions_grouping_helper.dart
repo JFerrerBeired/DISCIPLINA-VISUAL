@@ -48,7 +48,7 @@ class CompletionsGroupingHelper {
         // Calculate how many days to subtract to get to Monday
         // weekday(): 1=Monday, 2=Tuesday, ..., 7=Sunday
         // Monday is 1, so subtract 0 days; Sunday is 7, so subtract 6 days
-        int daysToSubtract = date.weekday - 1; 
+        int daysToSubtract = date.weekday - 1;
         return DateTime(date.year, date.month, date.day - daysToSubtract);
       case TimeGrouping.monthly:
         return DateTime(date.year, date.month);
