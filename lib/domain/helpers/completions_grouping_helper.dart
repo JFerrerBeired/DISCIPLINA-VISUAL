@@ -8,103 +8,62 @@ class CompletionsGroupingHelper {
     DateTime endDate,
     TimeGrouping grouping,
   ) {
+    // Adjust start and end dates to the beginning of their respective periods
+    DateTime adjustedStartDate = _getPeriodStart(startDate, grouping);
+    DateTime adjustedEndDate = _getPeriodStart(endDate, grouping);
+
+    // Create a map with all periods initialized with empty lists
     final Map<DateTime, List<Completion>> groupedData = {};
+    DateTime currentDate = adjustedStartDate;
 
-    // First, populate with existing completions
+    // Initialize all periods in the range with empty lists
+    while (currentDate.isBefore(adjustedEndDate) ||
+        currentDate.isAtSameMomentAs(adjustedEndDate)) {
+      groupedData[currentDate] = [];
+      currentDate = _getNextPeriod(currentDate, grouping);
+    }
+
+    // Add completions to their respective periods
     for (var completion in allCompletions) {
-      DateTime key;
-      switch (grouping) {
-        case TimeGrouping.daily:
-          key = DateTime(
-            completion.date.year,
-            completion.date.month,
-            completion.date.day,
-          );
-          break;
-        case TimeGrouping.weekly:
-          DateTime date = DateTime(
-            completion.date.year,
-            completion.date.month,
-            completion.date.day,
-          );
-          while (date.weekday != DateTime.monday) {
-            date = date.subtract(const Duration(days: 1));
-          }
-          key = date;
-          break;
-        case TimeGrouping.monthly:
-          key = DateTime(completion.date.year, completion.date.month);
-          break;
+      DateTime period = _getPeriodStart(completion.date, grouping);
+
+      // Only add completions that fall within our date range
+      if (period.isAfter(adjustedEndDate) ||
+          period.isBefore(adjustedStartDate)) {
+        continue;
       }
-      groupedData.putIfAbsent(key, () => []).add(completion);
-    }
 
-    // Now, fill in missing periods from startDate to endDate
-    DateTime currentPeriodStart = DateTime(
-      startDate.year,
-      startDate.month,
-      startDate.day,
-    );
-    // Adjust currentPeriodStart to the beginning of its period based on grouping
-    switch (grouping) {
-      case TimeGrouping.daily:
-        // Already at start of day
-        break;
-      case TimeGrouping.weekly:
-        while (currentPeriodStart.weekday != DateTime.monday) {
-          currentPeriodStart = currentPeriodStart.subtract(
-            const Duration(days: 1),
-          );
-        }
-        break;
-      case TimeGrouping.monthly:
-        currentPeriodStart = DateTime(
-          currentPeriodStart.year,
-          currentPeriodStart.month,
-        );
-        break;
-    }
-
-    DateTime endPeriod = DateTime(endDate.year, endDate.month, endDate.day);
-    // Adjust endPeriod to the beginning of its period based on grouping
-    switch (grouping) {
-      case TimeGrouping.daily:
-        // Already at start of day
-        break;
-      case TimeGrouping.weekly:
-        while (endPeriod.weekday != DateTime.monday) {
-          endPeriod = endPeriod.subtract(const Duration(days: 1));
-        }
-        break;
-      case TimeGrouping.monthly:
-        endPeriod = DateTime(endPeriod.year, endPeriod.month);
-        break;
-    }
-
-    while (currentPeriodStart.isBefore(endPeriod) ||
-        currentPeriodStart.isAtSameMomentAs(endPeriod)) {
-      groupedData.putIfAbsent(
-        currentPeriodStart,
-        () => [],
-      ); // Ensure period exists, even if empty
-
-      // Move to the next period
-      switch (grouping) {
-        case TimeGrouping.daily:
-          currentPeriodStart = currentPeriodStart.add(const Duration(days: 1));
-          break;
-        case TimeGrouping.weekly:
-          currentPeriodStart = currentPeriodStart.add(const Duration(days: 7));
-          break;
-        case TimeGrouping.monthly:
-          currentPeriodStart = DateTime(
-            currentPeriodStart.year,
-            currentPeriodStart.month + 1,
-          );
-          break;
-      }
+      groupedData[period]?.add(completion);
     }
 
     return groupedData;
+  }
+
+  /// Returns the start of the period for the given date based on grouping
+  static DateTime _getPeriodStart(DateTime date, TimeGrouping grouping) {
+    switch (grouping) {
+      case TimeGrouping.daily:
+        return DateTime(date.year, date.month, date.day);
+      case TimeGrouping.weekly:
+        // Calculate how many days to subtract to get to Monday
+        // weekday(): 1=Monday, 2=Tuesday, ..., 7=Sunday
+        // Monday is 1, so subtract 0 days; Sunday is 7, so subtract 6 days
+        int daysToSubtract = date.weekday - 1; 
+        return DateTime(date.year, date.month, date.day - daysToSubtract);
+      case TimeGrouping.monthly:
+        return DateTime(date.year, date.month);
+    }
+  }
+
+  /// Returns the next period based on the current date and grouping
+  static DateTime _getNextPeriod(DateTime date, TimeGrouping grouping) {
+    switch (grouping) {
+      case TimeGrouping.daily:
+        return date.add(const Duration(days: 1));
+      case TimeGrouping.weekly:
+        return date.add(const Duration(days: 7));
+      case TimeGrouping.monthly:
+        return DateTime(date.year, date.month + 1);
+    }
   }
 }
