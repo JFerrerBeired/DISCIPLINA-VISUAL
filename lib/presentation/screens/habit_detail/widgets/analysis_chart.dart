@@ -37,17 +37,16 @@ class AnalysisChart extends StatelessWidget {
       maxY = (maxY * 1.2).ceilToDouble(); // Add some padding
     }
 
-
     // Determine the first date for label generation from the chartData
     // Assuming chartData is sorted by date
     final DateTime firstDateForLabels = chartData.first.date;
-
 
     final List<BarChartGroupData> barGroups = chartData.map((dataPoint) {
       // Calculate the week index relative to the firstDateForLabels
       // This is needed because fl_chart's BarChartGroupData.x expects an integer index,
       // not a raw timestamp. We're effectively re-indexing the data points.
-      final int weekIndex = (dataPoint.date.difference(firstDateForLabels).inDays / 7).floor();
+      final int weekIndex =
+          (dataPoint.date.difference(firstDateForLabels).inDays / 7).floor();
 
       return BarChartGroupData(
         x: weekIndex, // Use the calculated week index

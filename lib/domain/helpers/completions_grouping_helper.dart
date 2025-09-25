@@ -3,7 +3,11 @@ import 'package:disciplina_visual/domain/usecases/chart_calculation_params.dart'
 
 class CompletionsGroupingHelper {
   static Map<DateTime, List<Completion>> groupBy(
-      List<Completion> allCompletions, DateTime startDate, DateTime endDate, TimeGrouping grouping) {
+    List<Completion> allCompletions,
+    DateTime startDate,
+    DateTime endDate,
+    TimeGrouping grouping,
+  ) {
     final Map<DateTime, List<Completion>> groupedData = {};
 
     // First, populate with existing completions
@@ -11,10 +15,18 @@ class CompletionsGroupingHelper {
       DateTime key;
       switch (grouping) {
         case TimeGrouping.daily:
-          key = DateTime(completion.date.year, completion.date.month, completion.date.day);
+          key = DateTime(
+            completion.date.year,
+            completion.date.month,
+            completion.date.day,
+          );
           break;
         case TimeGrouping.weekly:
-          DateTime date = DateTime(completion.date.year, completion.date.month, completion.date.day);
+          DateTime date = DateTime(
+            completion.date.year,
+            completion.date.month,
+            completion.date.day,
+          );
           while (date.weekday != DateTime.monday) {
             date = date.subtract(const Duration(days: 1));
           }
@@ -28,7 +40,11 @@ class CompletionsGroupingHelper {
     }
 
     // Now, fill in missing periods from startDate to endDate
-    DateTime currentPeriodStart = DateTime(startDate.year, startDate.month, startDate.day);
+    DateTime currentPeriodStart = DateTime(
+      startDate.year,
+      startDate.month,
+      startDate.day,
+    );
     // Adjust currentPeriodStart to the beginning of its period based on grouping
     switch (grouping) {
       case TimeGrouping.daily:
@@ -36,11 +52,16 @@ class CompletionsGroupingHelper {
         break;
       case TimeGrouping.weekly:
         while (currentPeriodStart.weekday != DateTime.monday) {
-          currentPeriodStart = currentPeriodStart.subtract(const Duration(days: 1));
+          currentPeriodStart = currentPeriodStart.subtract(
+            const Duration(days: 1),
+          );
         }
         break;
       case TimeGrouping.monthly:
-        currentPeriodStart = DateTime(currentPeriodStart.year, currentPeriodStart.month);
+        currentPeriodStart = DateTime(
+          currentPeriodStart.year,
+          currentPeriodStart.month,
+        );
         break;
     }
 
@@ -60,9 +81,12 @@ class CompletionsGroupingHelper {
         break;
     }
 
-
-    while (currentPeriodStart.isBefore(endPeriod) || currentPeriodStart.isAtSameMomentAs(endPeriod)) {
-      groupedData.putIfAbsent(currentPeriodStart, () => []); // Ensure period exists, even if empty
+    while (currentPeriodStart.isBefore(endPeriod) ||
+        currentPeriodStart.isAtSameMomentAs(endPeriod)) {
+      groupedData.putIfAbsent(
+        currentPeriodStart,
+        () => [],
+      ); // Ensure period exists, even if empty
 
       // Move to the next period
       switch (grouping) {
@@ -73,7 +97,10 @@ class CompletionsGroupingHelper {
           currentPeriodStart = currentPeriodStart.add(const Duration(days: 7));
           break;
         case TimeGrouping.monthly:
-          currentPeriodStart = DateTime(currentPeriodStart.year, currentPeriodStart.month + 1);
+          currentPeriodStart = DateTime(
+            currentPeriodStart.year,
+            currentPeriodStart.month + 1,
+          );
           break;
       }
     }

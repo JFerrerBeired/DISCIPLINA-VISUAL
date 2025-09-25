@@ -9,7 +9,11 @@ class CalculateCompletionTotalsUseCase implements CalculateChartData {
   List<ChartDataPoint> call(ChartCalculationParams params) {
     final Map<DateTime, List<Completion>> groupedCompletions =
         CompletionsGroupingHelper.groupBy(
-            params.completions, params.startDate, params.endDate, params.grouping);
+          params.completions,
+          params.startDate,
+          params.endDate,
+          params.grouping,
+        );
 
     final List<ChartDataPoint> chartPoints = [];
 

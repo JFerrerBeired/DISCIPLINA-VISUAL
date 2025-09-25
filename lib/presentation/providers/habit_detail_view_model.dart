@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:disciplina_visual/data/models/completion.dart';
-import 'package:disciplina_visual/data/models/habit.dart'; 
+import 'package:disciplina_visual/data/models/habit.dart';
 
 import 'package:disciplina_visual/domain/usecases/add_completion.dart';
 import 'package:disciplina_visual/domain/usecases/calculate_streak.dart';
@@ -41,8 +41,8 @@ class HabitDetailViewModel extends ChangeNotifier {
   Streak? _streak;
   Streak? get streak => _streak;
 
-  Habit? _habit; 
-  Habit? get habit => _habit; 
+  Habit? _habit;
+  Habit? get habit => _habit;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -53,7 +53,7 @@ class HabitDetailViewModel extends ChangeNotifier {
   Future<void> loadCompletions(int habitId, Habit habit) async {
     _isLoading = true;
     _error = null;
-    _habit = habit; 
+    _habit = habit;
     notifyListeners();
 
     try {
@@ -79,14 +79,14 @@ class HabitDetailViewModel extends ChangeNotifier {
   Future<void> addCompletionForHabit(int habitId, DateTime date) async {
     await addCompletion(habitId, date);
     if (_habit != null) {
-      await loadCompletions(habitId, _habit!); 
+      await loadCompletions(habitId, _habit!);
     }
   }
 
   Future<void> removeCompletionForHabit(int habitId, DateTime date) async {
     await removeCompletion(habitId, date);
     if (_habit != null) {
-      await loadCompletions(habitId, _habit!); 
+      await loadCompletions(habitId, _habit!);
     }
   }
 
