@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:disciplina_visual/data/models/completion.dart';
+import 'package:disciplina_visual/data/models/habit.dart';
 
 import 'package:disciplina_visual/domain/usecases/add_completion.dart';
 import 'package:disciplina_visual/domain/usecases/calculate_streak.dart';
@@ -8,6 +9,10 @@ import 'package:disciplina_visual/domain/usecases/get_completions.dart';
 import 'package:disciplina_visual/domain/usecases/remove_completion.dart';
 import 'package:disciplina_visual/presentation/utils/date_provider.dart';
 
+import 'package:disciplina_visual/domain/entities/chart_data_point.dart';
+import 'package:disciplina_visual/domain/usecases/calculate_completion_totals_usecase.dart';
+import 'package:disciplina_visual/domain/usecases/chart_calculation_params.dart';
+
 class HabitDetailViewModel extends ChangeNotifier {
   final GetCompletions getCompletions;
   final AddCompletion addCompletion;
@@ -15,6 +20,7 @@ class HabitDetailViewModel extends ChangeNotifier {
   final DeleteHabit deleteHabit;
   final CalculateStreak calculateStreak;
   final DateProvider dateProvider;
+  final CalculateCompletionTotalsUseCase calculateCompletionTotals;
 
   HabitDetailViewModel({
     required this.getCompletions,
@@ -23,13 +29,20 @@ class HabitDetailViewModel extends ChangeNotifier {
     required this.deleteHabit,
     required this.calculateStreak,
     required this.dateProvider,
+    required this.calculateCompletionTotals,
   });
 
   List<Completion> _completions = [];
   List<Completion> get completions => _completions;
 
+  List<ChartDataPoint> _chartData = [];
+  List<ChartDataPoint> get chartData => _chartData;
+
   Streak? _streak;
   Streak? get streak => _streak;
+
+  Habit? _habit;
+  Habit? get habit => _habit;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -37,14 +50,24 @@ class HabitDetailViewModel extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  Future<void> loadCompletions(int habitId) async {
+  Future<void> loadCompletions(int habitId, Habit habit) async {
     _isLoading = true;
     _error = null;
+    _habit = habit;
     notifyListeners();
 
     try {
       _completions = await getCompletions(habitId);
       _streak = calculateStreak(_completions, dateProvider.simulatedToday);
+
+      _chartData = calculateCompletionTotals(
+        ChartCalculationParams(
+          completions: _completions,
+          grouping: TimeGrouping.weekly,
+          startDate: habit.creationDate,
+          endDate: dateProvider.simulatedToday,
+        ),
+      );
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -55,12 +78,16 @@ class HabitDetailViewModel extends ChangeNotifier {
 
   Future<void> addCompletionForHabit(int habitId, DateTime date) async {
     await addCompletion(habitId, date);
-    await loadCompletions(habitId);
+    if (_habit != null) {
+      await loadCompletions(habitId, _habit!);
+    }
   }
 
   Future<void> removeCompletionForHabit(int habitId, DateTime date) async {
     await removeCompletion(habitId, date);
-    await loadCompletions(habitId);
+    if (_habit != null) {
+      await loadCompletions(habitId, _habit!);
+    }
   }
 
   Future<void> deleteHabitById(int habitId) async {

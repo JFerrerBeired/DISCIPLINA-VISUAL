@@ -18,8 +18,9 @@ class CalculateStreak {
   int _calculateCurrentStreak(List<Completion> completions, DateTime today) {
     if (completions.isEmpty) return 0;
 
-    final Set<DateTime> completedDates = completions.map((c) =>
-        DateTime(c.date.year, c.date.month, c.date.day)).toSet();
+    final Set<DateTime> completedDates = completions
+        .map((c) => DateTime(c.date.year, c.date.month, c.date.day))
+        .toSet();
 
     int streak = 0;
     DateTime checkDate = DateTime(today.year, today.month, today.day);
@@ -47,8 +48,9 @@ class CalculateStreak {
 
     completions.sort((a, b) => a.date.compareTo(b.date));
 
-    final Set<DateTime> completedDates = completions.map((c) =>
-        DateTime(c.date.year, c.date.month, c.date.day)).toSet();
+    final Set<DateTime> completedDates = completions
+        .map((c) => DateTime(c.date.year, c.date.month, c.date.day))
+        .toSet();
 
     if (completedDates.isEmpty) return 0;
 
@@ -58,7 +60,9 @@ class CalculateStreak {
       if (i == 0) {
         currentStreak = 1;
       } else {
-        final Duration difference = sortedUniqueDates[i].difference(sortedUniqueDates[i - 1]);
+        final Duration difference = sortedUniqueDates[i].difference(
+          sortedUniqueDates[i - 1],
+        );
         if (difference.inDays == 1) {
           currentStreak++;
         } else if (difference.inDays > 1) {

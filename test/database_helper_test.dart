@@ -27,7 +27,11 @@ void main() {
     });
 
     test('createHabit and getAllHabits', () async {
-      final habit = Habit(name: 'Test Habit', color: 0xFF0000FF, creationDate: DateTime.now());
+      final habit = Habit(
+        name: 'Test Habit',
+        color: 0xFF0000FF,
+        creationDate: DateTime.now(),
+      );
       final id = await dbHelper.createHabit(habit);
       expect(id, isNotNull);
 
@@ -37,7 +41,11 @@ void main() {
     });
 
     test('updateHabit', () async {
-      final habit = Habit(name: 'Original Name', color: 0xFF0000FF, creationDate: DateTime.now());
+      final habit = Habit(
+        name: 'Original Name',
+        color: 0xFF0000FF,
+        creationDate: DateTime.now(),
+      );
       final id = await dbHelper.createHabit(habit);
 
       final updatedHabit = habit.copyWith(id: id, name: 'Updated Name');
@@ -49,7 +57,11 @@ void main() {
     });
 
     test('deleteHabit', () async {
-      final habit = Habit(name: 'Habit to Delete', color: 0xFF0000FF, creationDate: DateTime.now());
+      final habit = Habit(
+        name: 'Habit to Delete',
+        color: 0xFF0000FF,
+        creationDate: DateTime.now(),
+      );
       final id = await dbHelper.createHabit(habit);
 
       final rowsAffected = await dbHelper.deleteHabit(id);
@@ -60,7 +72,11 @@ void main() {
     });
 
     test('addCompletion and getCompletionsForHabit', () async {
-      final habit = Habit(name: 'Habit with Completions', color: 0xFF0000FF, creationDate: DateTime.now());
+      final habit = Habit(
+        name: 'Habit with Completions',
+        color: 0xFF0000FF,
+        creationDate: DateTime.now(),
+      );
       final habitId = await dbHelper.createHabit(habit);
 
       final date1 = DateTime.now();
@@ -71,13 +87,17 @@ void main() {
 
       final completions = await dbHelper.getCompletionsForHabit(habitId);
       expect(completions.length, 2);
-      // Check if dates are present (order might vary based on orderBy in getCompletionsForHabit) 
+      // Check if dates are present (order might vary based on orderBy in getCompletionsForHabit)
       expect(completions.any((c) => c.date.day == date1.day), true);
       expect(completions.any((c) => c.date.day == date2.day), true);
     });
 
     test('removeCompletion', () async {
-      final habit = Habit(name: 'Habit to Remove Completion', color: 0xFF0000FF, creationDate: DateTime.now());
+      final habit = Habit(
+        name: 'Habit to Remove Completion',
+        color: 0xFF0000FF,
+        creationDate: DateTime.now(),
+      );
       final habitId = await dbHelper.createHabit(habit);
 
       final date = DateTime.now();

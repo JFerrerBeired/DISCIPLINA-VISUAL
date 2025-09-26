@@ -7,10 +7,16 @@ import 'dart:async' as _i6;
 import 'dart:ui' as _i12;
 
 import 'package:disciplina_visual/data/models/completion.dart' as _i7;
+import 'package:disciplina_visual/domain/entities/chart_data_point.dart'
+    as _i14;
 import 'package:disciplina_visual/domain/repositories/habit_repository.dart'
     as _i2;
 import 'package:disciplina_visual/domain/usecases/add_completion.dart' as _i8;
+import 'package:disciplina_visual/domain/usecases/calculate_completion_totals_usecase.dart'
+    as _i13;
 import 'package:disciplina_visual/domain/usecases/calculate_streak.dart' as _i3;
+import 'package:disciplina_visual/domain/usecases/chart_calculation_params.dart'
+    as _i15;
 import 'package:disciplina_visual/domain/usecases/delete_future_completions.dart'
     as _i4;
 import 'package:disciplina_visual/domain/usecases/delete_habit.dart' as _i10;
@@ -34,6 +40,7 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeHabitRepository_0 extends _i1.SmartFake
     implements _i2.HabitRepository {
@@ -271,4 +278,22 @@ class MockDateProvider extends _i1.Mock implements _i11.DateProvider {
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+}
+
+/// A class which mocks [CalculateCompletionTotalsUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCalculateCompletionTotalsUseCase extends _i1.Mock
+    implements _i13.CalculateCompletionTotalsUseCase {
+  MockCalculateCompletionTotalsUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  List<_i14.ChartDataPoint> call(_i15.ChartCalculationParams? params) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [params]),
+            returnValue: <_i14.ChartDataPoint>[],
+          )
+          as List<_i14.ChartDataPoint>);
 }

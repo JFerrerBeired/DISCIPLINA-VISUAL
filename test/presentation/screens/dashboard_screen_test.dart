@@ -28,21 +28,15 @@ void main() {
         ChangeNotifierProvider<DashboardViewModel>.value(
           value: mockDashboardViewModel,
         ),
-        ChangeNotifierProvider<DateProvider>.value(
-          value: mockDateProvider,
-        ),
-        Provider<HabitRepository>.value(
-          value: mockHabitRepository,
-        ),
+        ChangeNotifierProvider<DateProvider>.value(value: mockDateProvider),
+        Provider<HabitRepository>.value(value: mockHabitRepository),
       ],
-      child: const MaterialApp(
-        home: DashboardScreen(),
-      ),
+      child: const MaterialApp(home: DashboardScreen()),
     );
   }
 
   final habits = [
-    Habit(id: 1, name: 'Test Habit', color: 0, creationDate: DateTime.now())
+    Habit(id: 1, name: 'Test Habit', color: 0, creationDate: DateTime.now()),
   ];
 
   testWidgets('shows loading indicator when loading', (tester) async {
@@ -63,8 +57,9 @@ void main() {
     when(mockDashboardViewModel.error).thenReturn(null);
     when(mockDateProvider.simulatedToday).thenReturn(DateTime.now());
     when(mockDateProvider.dayOffset).thenReturn(0);
-    when(mockHabitRepository.getCompletionsForHabit(any))
-        .thenAnswer((_) async => []);
+    when(
+      mockHabitRepository.getCompletionsForHabit(any),
+    ).thenAnswer((_) async => []);
 
     await tester.pumpWidget(createWidgetUnderTest());
     await tester.pump();

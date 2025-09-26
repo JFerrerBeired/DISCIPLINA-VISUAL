@@ -28,7 +28,8 @@ class DatabaseHelper {
   }
 
   // Setter para la base de datos (solo para uso en tests).
-  set setTestDatabase(Database newDatabase) { // Changed Future<Database> to Database
+  set setTestDatabase(Database newDatabase) {
+    // Changed Future<Database> to Database
     _database = newDatabase;
   }
 
@@ -145,17 +146,9 @@ class DatabaseHelper {
   Future<int> deleteHabit(int id) async {
     final db = await database;
     // Eliminar los completados asociados primero (debido a ON DELETE CASCADE, esto podría ser opcional si la FK está bien configurada)
-    await db.delete(
-      'completions',
-      where: 'habitId = ?',
-      whereArgs: [id],
-    );
+    await db.delete('completions', where: 'habitId = ?', whereArgs: [id]);
     // Eliminar el hábito
-    return await db.delete(
-      'habits',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('habits', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Elimina todos los hábitos y sus completados asociados.
@@ -163,21 +156,24 @@ class DatabaseHelper {
   Future<void> deleteAllHabits() async {
     final db = await database;
     await db.delete('habits');
-    await db.delete('completions'); // También borramos los completados asociados
+    await db.delete(
+      'completions',
+    ); // También borramos los completados asociados
   }
-
 
   /// Elimina registros de completado cuya fecha sea posterior a la fecha de corte.
   Future<void> deleteFutureCompletions(DateTime cutoffDate) async {
     final db = await database;
-    final String formattedCutoffDate = cutoffDate.toIso8601String().substring(0, 10);
+    final String formattedCutoffDate = cutoffDate.toIso8601String().substring(
+      0,
+      10,
+    );
     await db.delete(
       'completions',
       where: 'date > ?',
       whereArgs: [formattedCutoffDate],
     );
   }
-
 
   /// NOTE: Función de ayuda para desarrollo.
   ///
@@ -198,12 +194,36 @@ class DatabaseHelper {
 
     // Lista de hábitos de ejemplo con fechas de creación más antiguas
     final List<Habit> seedHabits = [
-      Habit(name: 'Leer 30 minutos', color: 0xFF4CAF50, creationDate: today.subtract(const Duration(days: 30))), // Verde
-      Habit(name: 'Meditar 10 minutos', color: 0xFF2196F3, creationDate: today.subtract(const Duration(days: 25))), // Azul
-      Habit(name: 'Hacer ejercicio', color: 0xFFFF9800, creationDate: today.subtract(const Duration(days: 20))), // Naranja
-      Habit(name: 'Beber 2L de agua', color: 0xFF00BCD4, creationDate: today.subtract(const Duration(days: 15))), // Cyan
-      Habit(name: 'Estudiar Flutter', color: 0xFF9C27B0, creationDate: today.subtract(const Duration(days: 10))), // Púrpura
-      Habit(name: 'Escribir en el diario', color: 0xFF795548, creationDate: today.subtract(const Duration(days: 5))), // Marrón
+      Habit(
+        name: 'Leer 30 minutos',
+        color: 0xFF4CAF50,
+        creationDate: today.subtract(const Duration(days: 30)),
+      ), // Verde
+      Habit(
+        name: 'Meditar 10 minutos',
+        color: 0xFF2196F3,
+        creationDate: today.subtract(const Duration(days: 25)),
+      ), // Azul
+      Habit(
+        name: 'Hacer ejercicio',
+        color: 0xFFFF9800,
+        creationDate: today.subtract(const Duration(days: 20)),
+      ), // Naranja
+      Habit(
+        name: 'Beber 2L de agua',
+        color: 0xFF00BCD4,
+        creationDate: today.subtract(const Duration(days: 15)),
+      ), // Cyan
+      Habit(
+        name: 'Estudiar Flutter',
+        color: 0xFF9C27B0,
+        creationDate: today.subtract(const Duration(days: 10)),
+      ), // Púrpura
+      Habit(
+        name: 'Escribir en el diario',
+        color: 0xFF795548,
+        creationDate: today.subtract(const Duration(days: 5)),
+      ), // Marrón
     ];
 
     // Días de completado para cada hábito (días atrás desde hoy)

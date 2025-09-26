@@ -21,15 +21,18 @@ class HabitCard extends StatelessWidget {
             viewModel.isCompletedToday
                 ? Icons.check_circle
                 : Icons.check_circle_outline,
-            color:
-                viewModel.isCompletedToday ? Color(viewModel.habit.color) : Colors.grey,
+            color: viewModel.isCompletedToday
+                ? Color(viewModel.habit.color)
+                : Colors.grey,
             size: 30,
           ),
         ),
         title: Text(
           viewModel.habit.name,
           style: TextStyle(
-              fontWeight: FontWeight.bold, color: Color(viewModel.habit.color)),
+            fontWeight: FontWeight.bold,
+            color: Color(viewModel.habit.color),
+          ),
         ),
         subtitle: Row(
           mainAxisSize: MainAxisSize.min,
@@ -48,8 +51,11 @@ class HabitCard extends StatelessWidget {
           children: viewModel.recentCompletions.map((completion) {
             final isCompleted = completion.id != null;
             return GestureDetector(
-              onLongPress: () =>
-                  _handleRecentCompletionLongPress(context, completion, viewModel),
+              onLongPress: () => _handleRecentCompletionLongPress(
+                context,
+                completion,
+                viewModel,
+              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Container(
@@ -72,7 +78,10 @@ class HabitCard extends StatelessWidget {
   }
 
   Future<void> _handleRecentCompletionLongPress(
-      BuildContext context, Completion completion, HabitCardViewModel viewModel) async {
+    BuildContext context,
+    Completion completion,
+    HabitCardViewModel viewModel,
+  ) async {
     final isCompleted = completion.id != null;
     final action = isCompleted ? "desmarcar" : "marcar";
 
@@ -82,7 +91,8 @@ class HabitCard extends StatelessWidget {
         return AlertDialog(
           title: Text("Editar ${viewModel.habit.name}"),
           content: Text(
-              "¿Deseas $action este hábito para el día ${completion.date.day}/${completion.date.month}?"),
+            "¿Deseas $action este hábito para el día ${completion.date.day}/${completion.date.month}?",
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),

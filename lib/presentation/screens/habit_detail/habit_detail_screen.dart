@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:disciplina_visual/data/models/habit.dart';
 import 'package:disciplina_visual/presentation/providers/habit_detail_view_model.dart';
 import 'package:disciplina_visual/presentation/screens/create_habit_screen.dart';
-import 'package:disciplina_visual/data/models/completion.dart';
 
 import 'widgets/analysis_chart.dart';
 import 'widgets/habit_heatmap.dart';
@@ -21,6 +20,7 @@ class HabitDetailScreen extends StatefulWidget {
 class _HabitDetailScreenState extends State<HabitDetailScreen> {
   late HabitDetailViewModel _viewModel;
   late ScrollController _scrollController;
+  late ScrollController _analysisChartScrollController;
   bool _isEditingHeatmap = false;
   late Habit _displayHabit;
 
@@ -30,28 +30,22 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     _displayHabit = widget.habit;
     _viewModel = Provider.of<HabitDetailViewModel>(context, listen: false);
     _scrollController = ScrollController();
+    _analysisChartScrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompletions();
       _scrollToMaxExtent();
     });
-    _viewModel.addListener(_onViewModelUpdated);
   }
 
   @override
   void dispose() {
-    _viewModel.removeListener(_onViewModelUpdated);
     _scrollController.dispose();
+    _analysisChartScrollController.dispose();
     super.dispose();
   }
 
-  void _onViewModelUpdated() {
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   void _loadCompletions() {
-    _viewModel.loadCompletions(widget.habit.id!);
+    _viewModel.loadCompletions(widget.habit.id!, _displayHabit);
   }
 
   void _scrollToMaxExtent() {
@@ -60,11 +54,17 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
+      if (_analysisChartScrollController.hasClients) {
+        _analysisChartScrollController
+            .jumpTo(_analysisChartScrollController.position.maxScrollExtent);
+      }
     });
   }
 
   Future<void> _handleHeatmapCellTap(
-      DateTime date, bool isCurrentlyCompleted) async {
+    DateTime date,
+    bool isCurrentlyCompleted,
+  ) async {
     final action = isCurrentlyCompleted ? "desmarcar" : "marcar";
     final confirm = await showDialog<bool>(
       context: context,
@@ -72,7 +72,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         return AlertDialog(
           title: Text("Editar ${_displayHabit.name}"),
           content: Text(
-              "¿Deseas $action este hábito para el día ${date.day}/${date.month}?"),
+            "¿Deseas $action este hábito para el día ${date.day}/${date.month}?",
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -117,7 +118,8 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
         return AlertDialog(
           title: const Text("Eliminar Hábito"),
           content: Text(
-              "¿Estás seguro de que deseas eliminar el hábito '${_displayHabit.name}'? Esta acción es irreversible y eliminará todos sus datos de completado."),
+            "¿Estás seguro de que deseas eliminar el hábito '${_displayHabit.name}'? Esta acción es irreversible y eliminará todos sus datos de completado.",
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -125,7 +127,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+              child: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.red),
+              ),
             ),
           ],
         );
@@ -184,9 +189,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   Text(
                     _displayHabit.name,
                     style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(_displayHabit.color)),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color(_displayHabit.color),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   const Text('No hay datos de completado para este hábito.'),
@@ -196,6 +202,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
           }
 
           return SingleChildScrollView(
+            key: const PageStorageKey<String>('habitDetail'),
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,9 +211,10 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   child: Text(
                     _displayHabit.name,
                     style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Color(_displayHabit.color)),
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(_displayHabit.color),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -215,9 +223,13 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Actividad Reciente',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Actividad Reciente',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     IconButton(
                       icon: Icon(_isEditingHeatmap ? Icons.check : Icons.edit),
                       onPressed: () {
@@ -241,15 +253,15 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
                   scrollController: _scrollController,
                 ),
                 const SizedBox(height: 20),
-                const Text('Gráfico de Análisis',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Gráfico de Análisis',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 10),
                 AnalysisChart(
-                  completions: viewModel.completions,
-                  simulatedToday: viewModel.dateProvider.simulatedToday,
+                  chartData: viewModel.chartData,
                   habitColor: _displayHabit.color,
-                  dateProvider: viewModel.dateProvider,
+                  scrollController: _analysisChartScrollController,
                 ),
               ],
             ),

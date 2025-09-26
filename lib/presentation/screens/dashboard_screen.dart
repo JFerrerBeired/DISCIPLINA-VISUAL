@@ -50,8 +50,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Consumer<DateProvider>(
           builder: (context, dateProvider, child) {
             String title = 'Dashboard de Hábitos';
-            String dateString =
-                DateFormat('dd/MM/yyyy').format(dateProvider.simulatedToday);
+            String dateString = DateFormat(
+              'dd/MM/yyyy',
+            ).format(dateProvider.simulatedToday);
             if (dateProvider.dayOffset > 0) {
               title =
                   'Dashboard de Hábitos ($dateString +${dateProvider.dayOffset} días)';
@@ -119,28 +120,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         create: (context) => HabitCardViewModel(
                           habit: habit,
                           getCompletions: GetCompletions(
-                              context.read<HabitRepository>()),
+                            context.read<HabitRepository>(),
+                          ),
                           addCompletion: AddCompletion(
-                              context.read<HabitRepository>()),
+                            context.read<HabitRepository>(),
+                          ),
                           removeCompletion: RemoveCompletion(
-                              context.read<HabitRepository>()),
+                            context.read<HabitRepository>(),
+                          ),
                           calculateStreak: CalculateStreak(),
                           dateProvider: context.read<DateProvider>(),
                         ),
                         child: Consumer<HabitCardViewModel>(
                           builder: (context, habitCardViewModel, child) =>
                               HabitCard(
-                            viewModel: habitCardViewModel,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      HabitDetailScreen(habit: habit),
-                                ),
-                              ).then((_) => _loadHabits());
-                            },
-                          ),
+                                viewModel: habitCardViewModel,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          HabitDetailScreen(habit: habit),
+                                    ),
+                                  ).then((_) => _loadHabits());
+                                },
+                              ),
                         ),
                       );
                     },

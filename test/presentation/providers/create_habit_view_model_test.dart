@@ -23,7 +23,12 @@ void main() {
     );
   });
 
-  final habit = Habit(id: 1, name: 'Test Habit', color: 0, creationDate: DateTime.now());
+  final habit = Habit(
+    id: 1,
+    name: 'Test Habit',
+    color: 0,
+    creationDate: DateTime.now(),
+  );
 
   test('initial state is correct', () {
     expect(viewModel.isLoading, false);

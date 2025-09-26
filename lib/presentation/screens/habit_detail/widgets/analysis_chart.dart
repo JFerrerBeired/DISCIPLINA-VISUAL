@@ -1,57 +1,44 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:disciplina_visual/data/models/completion.dart';
-import 'package:disciplina_visual/presentation/utils/date_provider.dart';
-
-List<FlSpot> _getChartData(List<Completion> completions, DateTime simulatedToday) {
-  final Map<int, int> weeklyCompletions = {};
-  final Map<int, int> totalDaysInWeek = {};
-  final Set<DateTime> completedDates = completions
-      .map((c) => DateTime(c.date.year, c.date.month, c.date.day))
-      .toSet();
-
-  for (int i = 0; i < 8 * 7; i++) {
-    final date = simulatedToday.subtract(Duration(days: i));
-    final weekIndex = (simulatedToday.difference(date).inDays / 7).floor();
-    totalDaysInWeek.update(weekIndex, (value) => value + 1, ifAbsent: () => 1);
-    final normalizedDate = DateTime(date.year, date.month, date.day);
-    if (completedDates.contains(normalizedDate)) {
-      weeklyCompletions.update(weekIndex, (value) => value + 1, ifAbsent: () => 1);
-    }
-  }
-
-  final List<FlSpot> spots = [];
-  final List<int> weeks = totalDaysInWeek.keys.toList()..sort();
-  final reversedWeeks = weeks.reversed.toList();
-
-  for (int i = 0; i < reversedWeeks.length; i++) {
-    final week = reversedWeeks[i];
-    final completed = weeklyCompletions[week] ?? 0;
-    final total = totalDaysInWeek[week] ?? 1;
-    final percentage = total > 0 ? (completed / total) * 100 : 0.0;
-    spots.add(FlSpot(i.toDouble(), percentage));
-  }
-  return spots;
-}
+import 'package:disciplina_visual/domain/entities/chart_data_point.dart';
 
 class AnalysisChart extends StatelessWidget {
-  final List<Completion> completions;
-  final DateTime simulatedToday;
+  final List<ChartDataPoint> chartData;
   final int habitColor;
-  final DateProvider dateProvider;
+  final int maxVisibleColumns; // Maximum number of columns to show at once
+  final ScrollController scrollController;
 
   const AnalysisChart({
     super.key,
-    required this.completions,
-    required this.simulatedToday,
+    required this.chartData,
     required this.habitColor,
-    required this.dateProvider,
+    required this.scrollController,
+    this.maxVisibleColumns = 8,
   });
 
   @override
   Widget build(BuildContext context) {
-    final chartData = _getChartData(completions, simulatedToday);
+    if (chartData.isEmpty) {
+      return Container(
+        height: 200,
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: const Center(
+          child: Text("No hay suficientes datos para el análisis."),
+        ),
+      );
+    }
+
+    // If we have fewer data points than the max visible columns, we don't need scrolling
+    if (chartData.length <= maxVisibleColumns) {
+      return _buildFullChart();
+    }
+
+    // For scrolling, we'll create a HorizontalScrollView with fixed aspect ratio
     return Container(
       height: 200,
       padding: const EdgeInsets.all(16.0),
@@ -59,57 +46,106 @@ class AnalysisChart extends StatelessWidget {
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: LineChart(
-        LineChartData(
-          gridData: const FlGridData(show: false),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 40,
-                    getTitlesWidget: (value, meta) =>
-                        Text('${value.toInt()}%'))),
-            bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 30,
-                    getTitlesWidget: (value, meta) {
-                      if (value.toInt() >= chartData.length) return const Text('');
-                      final date = dateProvider
-                          .simulatedToday
-                          .subtract(Duration(
-                              days: (chartData.length -
-                                      1 -
-                                      value.toInt()) *
-                                  7));
-                      return SideTitleWidget(
-                        meta: meta,
-                        space: 0,
-                        child: Text(DateFormat('MMM dd').format(date),
-                            style: const TextStyle(fontSize: 10)),
-                      );
-                    })),
-            rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-          ),
-          borderData: FlBorderData(
-              show: true,
-              border: Border.all(
-                  color: const Color(0xff37434d), width: 1)),
-          lineBarsData: [
-            LineChartBarData(
-              spots: chartData,
-              isCurved: true,
-              color: Color(habitColor),
-              barWidth: 3,
-              isStrokeCapRound: true,
-              dotData: const FlDotData(show: true),
-              belowBarData: BarAreaData(show: false),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Calculate chart width based on the number of data points, 
+          // maintaining the same aspect ratio per bar
+          final double singleBarWidth = (constraints.maxWidth - 32) / maxVisibleColumns;
+          final double totalChartWidth = singleBarWidth * chartData.length;
+          
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            controller: scrollController,
+            child: Container(
+              width: totalChartWidth,
+              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+              child: _buildFullChart(),
             ),
-          ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFullChart() {
+    // Find the max Y value for dynamic axis scaling
+    double maxY = 7; // Default max
+    if (chartData.isNotEmpty) {
+      maxY = chartData.map((point) => point.y).reduce((a, b) => a > b ? a : b);
+      if (maxY < 7) maxY = 7; // Ensure a minimum max Y
+      maxY = (maxY * 1.2).ceilToDouble(); // Add some padding
+    }
+
+    // Create bar groups with simple sequential indices 
+    final List<BarChartGroupData> barGroups = chartData.asMap().entries.map((entry) {
+      final int index = entry.key;
+      final ChartDataPoint dataPoint = entry.value;
+      
+      return BarChartGroupData(
+        x: index, // Use sequential index instead of calculated week index
+        barRods: [
+          BarChartRodData(
+            toY: dataPoint.y,
+            color: Color(habitColor),
+            width: 20,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ],
+      );
+    }).toList();
+
+    return BarChart(
+      BarChartData(
+        barGroups: barGroups,
+        minY: 0,
+        maxY: maxY,
+        gridData: const FlGridData(show: true, drawVerticalLine: false),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: false,
+              reservedSize: 30,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                // Show only integer labels
+                if (value % 1 != 0 && value != 0) return const SizedBox();
+                return Text('${value.toInt()}');
+              },
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 30,
+              // Show labels for all data points but ensure readability
+              interval: 1, // Show every label
+              getTitlesWidget: (value, meta) {
+                // Check if the value corresponds to a valid index in our chartData
+                final index = value.toInt();
+                if (index < 0 || index >= chartData.length) return const Text('');
+                
+                final date = chartData[index].date;
+                return Text(
+                  DateFormat('dd\nMMM', 'es').format(date),
+                  style: const TextStyle(fontSize: 10),
+                  textAlign: TextAlign.center,
+                );
+              },
+            ),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
+        borderData: FlBorderData(show: false),
+        barTouchData: BarTouchData(
+          enabled: false,
+        ), // Disable touch for simplicity
+        alignment: BarChartAlignment.spaceAround,
+        groupsSpace: 12,
       ),
     );
   }

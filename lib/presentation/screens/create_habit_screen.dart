@@ -14,14 +14,14 @@ class CreateHabitScreen extends StatefulWidget {
 
 class _CreateHabitScreenState extends State<CreateHabitScreen> {
   final TextEditingController _nameController = TextEditingController();
-  int _selectedColor = Colors.blue.value;
+  Color _selectedColor = Colors.blue;
 
   @override
   void initState() {
     super.initState();
     if (widget.habit != null) {
       _nameController.text = widget.habit!.name;
-      _selectedColor = widget.habit!.color;
+      _selectedColor = Color(widget.habit!.color);
     }
   }
 
@@ -31,17 +31,17 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('El nombre del hábito no puede estar vacío.')),
+          content: Text('El nombre del hábito no puede estar vacío.'),
+        ),
       );
       return;
     }
 
-    final viewModel =
-        Provider.of<CreateHabitViewModel>(context, listen: false);
+    final viewModel = Provider.of<CreateHabitViewModel>(context, listen: false);
     final success = await viewModel.saveHabit(
       habit: widget.habit,
       name: name,
-      color: _selectedColor,
+      color: _selectedColor.value,
     );
 
     if (!mounted) return;
@@ -50,7 +50,9 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar el hábito: ${viewModel.error}')),
+        SnackBar(
+          content: Text('Error al guardar el hábito: ${viewModel.error}'),
+        ),
       );
     }
   }
@@ -59,8 +61,9 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            Text(widget.habit == null ? 'Crear Nuevo Hábito' : 'Editar Hábito'),
+        title: Text(
+          widget.habit == null ? 'Crear Nuevo Hábito' : 'Editar Hábito',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -81,49 +84,50 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: ['blue', 'green', 'red', 'purple', 'orange', 'teal']
                   .map((colorName) {
-                Color color = Colors.blue;
-                switch (colorName) {
-                  case 'blue':
-                    color = Colors.blue;
-                    break;
-                  case 'green':
-                    color = Colors.green;
-                    break;
-                  case 'red':
-                    color = Colors.red;
-                    break;
-                  case 'purple':
-                    color = Colors.purple;
-                    break;
-                  case 'orange':
-                    color = Colors.orange;
-                    break;
-                  case 'teal':
-                    color = Colors.teal;
-                    break;
-                }
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedColor = color.value;
-                    });
-                  },
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: _selectedColor == color.value
-                            ? Colors.black
-                            : Colors.transparent,
-                        width: 3,
+                    Color color = Colors.blue;
+                    switch (colorName) {
+                      case 'blue':
+                        color = Colors.blue;
+                        break;
+                      case 'green':
+                        color = Colors.green;
+                        break;
+                      case 'red':
+                        color = Colors.red;
+                        break;
+                      case 'purple':
+                        color = Colors.purple;
+                        break;
+                      case 'orange':
+                        color = Colors.orange;
+                        break;
+                      case 'teal':
+                        color = Colors.teal;
+                        break;
+                    }
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedColor = color;
+                        });
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _selectedColor == color
+                                ? Colors.black
+                                : Colors.transparent,
+                            width: 3,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
+                    );
+                  })
+                  .toList(),
             ),
             const SizedBox(height: 30),
             Center(
@@ -133,12 +137,16 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
                     onPressed: viewModel.isLoading ? null : _saveHabit,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 15),
+                        horizontal: 40,
+                        vertical: 15,
+                      ),
                     ),
                     child: viewModel.isLoading
                         ? const CircularProgressIndicator()
-                        : const Text('Guardar Hábito',
-                            style: TextStyle(fontSize: 18)),
+                        : const Text(
+                            'Guardar Hábito',
+                            style: TextStyle(fontSize: 18),
+                          ),
                   );
                 },
               ),
