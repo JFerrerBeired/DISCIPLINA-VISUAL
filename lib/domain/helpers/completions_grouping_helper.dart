@@ -43,15 +43,15 @@ class CompletionsGroupingHelper {
   static DateTime _getPeriodStart(DateTime date, TimeGrouping grouping) {
     switch (grouping) {
       case TimeGrouping.daily:
-        return DateTime(date.year, date.month, date.day);
+        return DateTime.utc(date.year, date.month, date.day);
       case TimeGrouping.weekly:
         // Calculate how many days to subtract to get to Monday
         // weekday(): 1=Monday, 2=Tuesday, ..., 7=Sunday
         // Monday is 1, so subtract 0 days; Sunday is 7, so subtract 6 days
         int daysToSubtract = date.weekday - 1;
-        return DateTime(date.year, date.month, date.day - daysToSubtract);
+        return DateTime.utc(date.year, date.month, date.day - daysToSubtract);
       case TimeGrouping.monthly:
-        return DateTime(date.year, date.month);
+        return DateTime.utc(date.year, date.month);
     }
   }
 
@@ -63,7 +63,7 @@ class CompletionsGroupingHelper {
       case TimeGrouping.weekly:
         return date.add(const Duration(days: 7));
       case TimeGrouping.monthly:
-        return DateTime(date.year, date.month + 1);
+        return DateTime.utc(date.year, date.month + 1);
     }
   }
 }
